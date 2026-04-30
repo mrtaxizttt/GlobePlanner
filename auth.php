@@ -40,4 +40,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
     exit();
 }
+    // Handle Delete Profile
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'delete') {
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(["status" => "error", "message" => "Unauthorized"]);
+        exit();
+    }
+    
+    $user_id = $_SESSION['user_id'];
+    
+    // Delete user's plans first to avoid foreign key errors
+    $stmt = $pdo->prepare("DELETE FROM plans WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    
+    // Delete the user from users table
+    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    
+    // Log out current session
+    unset($_SESSION['user_id']);
+    unset($_SESSION['user_name']);
+    session_destroy();
+    
+    echo json_encode(["status" => "success", "message" => "Profile successfully deleted"]);
+    exit();
+}
 ?>
