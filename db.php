@@ -1,17 +1,11 @@
 <?php
-// Define the database path for Render (persistent directory or root directory)
-$dbDir = '/var/data'; // Render persistent storage path if you create a disk, or fallback to local
-if (!is_dir($dbDir)) {
-    $dbDir = __DIR__;
-}
-
-$dbPath = $dbDir . '/globe_planner.db'; // Make sure the name is consistent
+$dbPath = __DIR__ . '/globe_planner.db';
 
 try {
     $pdo = new PDO('sqlite:' . $dbPath);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Create tables automatically if they do not exist
+    // Create tables if they do not exist
     $pdo->exec("CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
@@ -27,8 +21,7 @@ try {
         start_date TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )");
-
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    die(json_encode(["status" => "error", "message" => "Database connection failed: " . $e->getMessage()]));
 }
 ?>
