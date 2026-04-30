@@ -241,7 +241,7 @@
                 <div class="profile-container">
                     <div class="profile-header-card">
                         <div class="profile-avatar-large">
-                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
+                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
                         </div>
                         <div class="profile-info">
                             <h3 id="profile-name">Guest User</h3>
