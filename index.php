@@ -241,64 +241,12 @@
                 <div class="profile-container">
                     <div class="profile-header-card">
                         <div class="profile-avatar-large">
-                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
-                        </div>
-                        <div class="profile-info">
-                            <h3 id="profile-name">Guest </h3>
-                            <p>Exchange Student • Computer Science</p>
-                            <span class="tag" id="profile-status">Not Logged In</span>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-grid">
-                        <div class="card">
-                            <h4>Personal Information</h4>
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" id="profile-input-name" value="Guest User" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="profile-input-email" value="guest@example.com" disabled>
-                            </div>
-                            <div class="form-group">
-                                <label>Student ID</label>
-                                <input type="text" value="IFXXX000XX">
-                            </div>
-                        </div>
-                        <div class="card">
-                            <h4>Notification Settings</h4>
-                            <div class="form-group">
-                                <label>Deadline Reminders</label>
-                                <select>
-                                    <option>Enabled</option>
-                                    <option>Disabled</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Email Updates</label>
-                                <select>
-                                    <option>Weekly</option>
-                                    <option>Daily</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="profile-view" class="view-section">
-                <header class="top-bar">
-                    <h2>My Profile</h2>
-                </header>
-                <div class="profile-container">
-                    <div class="profile-header-card">
-                        <div class="profile-avatar-large">
                             <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
                         </div>
                         <div class="profile-info">
                             <h3 id="profile-name">Guest User</h3>
                             <p>Exchange Student • Computer Science</p>
-                            <span class="tag" id="profile-status">Not Logged In</span>
+                            <span class="tag" id="profile-status" style="background-color: #6b7280; color: white;">Not Logged In</span>
                         </div>
                     </div>
                     
@@ -315,7 +263,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Student ID</label>
-                                <input type="text" value="STU-0000">
+                                <input type="text" value="STU-0000" disabled>
                             </div>
                         </div>
                         <div class="card">
@@ -342,9 +290,6 @@
                     </div>
                 </div>
             </section>
-
-        </main>
-    </div>
 
     <!-- LOGIN MODAL -->
     <div id="login-modal" class="modal hidden">
