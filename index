@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Globe Planner - Exchange Semester Organizer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.8/index.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- APP SHELL -->
+    <div id="app-shell">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-small">Globe Planner</div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-target="dashboard-view">
+                        <span class="nav-icon">📊</span> Dashboard
+                    </li>
+                    <li class="nav-item" data-target="plan-view">
+                        <span class="nav-icon">📝</span> Create Plan
+                    </li>
+                    <li class="nav-item" data-target="profile-view">
+                        <span class="nav-icon">👤</span> Profile
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>&copy; 2026 Globe Planner</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <!-- VIEW 1: DASHBOARD -->
+            <section id="dashboard-view" class="view-section active">
+                <header class="top-bar">
+                    <h2>Dashboard</h2>
+                    <div class="user-pill">
+                        <span id="user-greeting">Welcome, Guest</span>
+                        <button id="auth-btn" class="auth-btn">Log In</button>
+                        <button id="logout-btn" class="auth-btn hidden">Logout</button>
+                    </div>
+                </header>
+
+                <!-- HERO SECTION -->
+                <section class="hero-section">
+                    <div class="hero-content">
+                        <h1>Plan Your Personal Across the Globe Experience</h1>
+                        <p>A centralized hub for courses, deadlines, documents, and destinations. Organize your academic journey seamlessly.</p>
+                        <button class="hero-cta-btn" onclick="switchView('plan-view')">Start Planning</button>
+                    </div>
+                    <div class="hero-image-container">
+                        <img src="images/pic1.JPG" alt="Mountain Campus">
+                    </div>
+                </section>
+
+                <div class="controls-section">
+                    <div class="controls-wrapper">
+                        <h3>Accessibility</h3>
+                        <div class="control-buttons">
+                            <button id="theme-toggle" class="ctrl-btn">Dark Mode</button>
+                            <button id="font-size-toggle" class="ctrl-btn">Increase Text</button>
+                            <button id="deadline-toggle" class="ctrl-btn">Hide Deadlines</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <article class="card destination-card">
+                        <h3>Current Destination</h3>
+                        <p>Sungkyunwan University, South Korea</p>
+                        <span class="tag">Bilateral</span>
+                        <span class="tag">Fall 2026</span>
+                    </article>
+                    <article class="card courses-card">
+                        <h3>Selected Courses</h3>
+                        <ul class="course-list">
+                            <li>Advanced Web Development (6 ECTS)</li>
+                            <li>European Business Law (4 ECTS)</li>
+                            <li>Data Structures (6 ECTS)</li>
+                        </ul>
+                    </article>
+                </div>
+
+                <article id="deadlines" class="deadlines-section visible">
+                    <h3>Important Deadlines</h3>
+                    <div class="deadlines-grid">
+                        <div class="card deadline-card">
+                            <span class="deadline-date">May 15</span>
+                            <p class="deadline-task">Visa Application</p>
+                            <span class="status urgent">Urgent</span>
+                        </div>
+                        <div class="card deadline-card">
+                            <span class="deadline-date">June 01</span>
+                            <p class="deadline-task">Housing Deposit</p>
+                            <span class="status pending">Pending</span>
+                        </div>
+                        <div class="card deadline-card">
+                            <span class="deadline-date">July 10</span>
+                            <p class="deadline-task">Flight Booking</p>
+                            <span class="status upcoming">Upcoming</span>
+                        </div>
+                    </div>
+                                    <!-- TASKS SECTION -->
+                <section id="tasks" class="tasks-section">
+                    <h3>My Tasks</h3>
+                    <div class="task-input-container">
+                        <input type="text" id="new-task-input" placeholder="Add a new task..." maxlength="100">
+                        <button id="add-task-btn" class="add-task-btn">Add Task</button>
+                    </div>
+                    
+                    <div class="task-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="active">Active</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                    </div>
+                    
+                    <div class="task-list" id="task-list">
+                        <!-- Tasks will be dynamically added here -->
+                    </div>
+                    
+                    <div class="task-stats" id="task-stats">
+                        <span id="completed-count">0</span> of <span id="total-count">0</span> tasks completed
+                    </div>
+                </section>
+
+                <section id="gallery" class="gallery-section">
+                    
+                    <div class="calendar-wrapper">
+                        <div class="calendar-container">
+                            <div class="calendar-header">
+                                <button id="prev-month" class="cal-nav-btn">&lt;</button>
+                                <h4 id="current-month-year"></h4>
+                                <button id="next-month" class="cal-nav-btn">&gt;</button>
+                            </div>
+                            <div class="calendar-weekdays">
+                                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                            </div>
+                            <div class="calendar-days" id="calendar-days"></div>
+                        </div>
+                    </div>
+                </article>
+
+                <section id="gallery" class="gallery-section">
+                    <h3>Exchange Life Gallery</h3>
+                    <div class="gallery-grid">
+                        <figure class="gallery-item">
+                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Study">
+                            <figcaption>Study Space</figcaption>
+                        </figure>
+                        <figure class="gallery-item">
+                            <img src="images/IMG_3514.JPG" alt="Travel">
+                            <figcaption>Culture Experience</figcaption>
+                        </figure>
+                        <figure class="gallery-item">
+                            <img src="images/IMG_4397.JPG" alt="Group">
+                            <figcaption>Friendships</figcaption>
+                        </figure>
+                        <figure class="gallery-item">
+                            <img src="images/A849C1F1-40B5-41E7-B204-B6F8AD39F313.JPG" alt="Dorm">
+                            <figcaption>Exploration</figcaption>
+                        </figure>
+                    </div>
+                </section>
+
+                <section id="media" class="media-section">
+                    <h3>Preparation Resources</h3>
+                    <div class="video-grid">
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/7u7AIuHksV8" title="Exchange Preparation Guide" allowfullscreen></iframe>
+                            <p>Exchange Preparation Guide</p>
+                        </div>
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/WHR-826UsoE" title="Student Life Abroad" allowfullscreen></iframe>
+                            <p>Student Life & Cultural Adaptation</p>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <!-- VIEW 2: CREATE PLAN PAGE -->
+            <section id="plan-view" class="view-section">
+                <header class="top-bar">
+                    <h2>Create Semester Plan</h2>
+                    <button class="save-plan-btn" id="save-plan-btn">Save Plan</button>
+                </header>
+                
+                <div class="plan-container">
+                    <form id="plan-form" class="plan-form">
+                        <fieldset>
+                            <legend>Academic Details</legend>
+                            <div class="form-group">
+                                <label for="destination">Destination Country</label>
+                                <input type="text" id="destination" placeholder="e.g., Spain, Germany, Japan" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="university">Host University</label>
+                                <input type="text" id="university" placeholder="University Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="course-count">Number of Courses</label>
+                                <input type="number" id="course-count" min="3" max="10" value="5">
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <legend>Time & Place</legend>
+                            <div class="form-group">
+                                <label for="accommodation">Accommodation Type</label>
+                                <select id="accommodation">
+                                    <option value="dorm">University Dormitory</option>
+                                    <option value="apartment">Private Apartment</option>
+                                    <option value="homestay">Host Family</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="start-date">Start Date</label>
+                                <input type="date" id="start-date">
+                            </div>
+                        </fieldset>
+                        <div class="form-actions">
+                            <button type="submit" class="submit-btn">Save & Submit Plan</button>
+                            <button type="reset" class="reset-btn">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- VIEW 3: PROFILE PAGE -->
+            <section id="profile-view" class="view-section">
+                <header class="top-bar">
+                    <h2>My Profile</h2>
+                </header>
+                <div class="profile-container">
+                    <div class="profile-header-card">
+                        <div class="profile-avatar-large">
+                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profile-name">Guest User</h3>
+                            <p>Exchange Student • Computer Science</p>
+                            <span class="tag" id="profile-status">Not Logged In</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-grid">
+                        <div class="card">
+                            <h4>Personal Information</h4>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="profile-input-name" value="Guest User" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="profile-input-email" value="guest@example.com" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Student ID</label>
+                                <input type="text" value="STU-0000">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4>Notification Settings</h4>
+                            <div class="form-group">
+                                <label>Deadline Reminders</label>
+                                <select>
+                                    <option>Enabled</option>
+                                    <option>Disabled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Updates</label>
+                                <select>
+                                    <option>Weekly</option>
+                                    <option>Daily</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Log In</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" placeholder="mariia.furdas@university.edu" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="login-submit-btn">Log In</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
