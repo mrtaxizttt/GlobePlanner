@@ -96,6 +96,70 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log("UI updated for user:", user.name);
     }
+    // --- Register Button from Modal ---
+    const modalRegisterBtn = document.getElementById('modal-register-btn');
+    modalRegisterBtn.addEventListener('click', async () => {
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const name = prompt("Please enter your name for registration:");
+
+        if (!email || !password || !name) {
+            alert("Name, Email, and Password are all required to register!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+
+        try {
+            const response = await fetch('auth.php?action=register', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (response.ok && data.status === 'success') {
+                alert("Registration successful! You can now log in.");
+                loginForm.reset();
+            } else {
+                alert("Error: " + (data.message || "User already exists."));
+            }
+        } catch (err) {
+            console.error("Connection error:", err);
+            alert("Could not connect to the database/server.");
+        }
+    });
+
+    // --- Delete Profile Button ---
+    const deleteProfileBtn = document.getElementById('delete-profile-btn');
+    deleteProfileBtn.addEventListener('click', async () => {
+        if (confirm("WARNING: This will permanently delete your profile and all associated data. Are you sure?")) {
+            try {
+                const response = await fetch('auth.php?action=delete', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    alert("Your profile has been deleted.");
+                    // Trigger your existing logout method UI
+                    const logoutBtn = document.getElementById('logout-btn');
+                    if (logoutBtn) {
+                        logoutBtn.click();
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    alert("Failed to delete profile: " + data.message);
+                }
+            } catch (err) {
+                console.error("Error:", err);
+                alert("Server connection failed.");
+            }
+        }
+    });
 
     // --- 2. NAVIGATION / SPA LOGIC ---
     const navItems = document.querySelectorAll('.nav-item[data-target]');
