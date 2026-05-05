@@ -57,7 +57,7 @@
                         <button class="hero-cta-btn" onclick="switchView('plan-view')">Start Planning</button>
                     </div>
                     <div class="hero-image-container">
-                        <img src="images/pic1.JPG" alt="Mountain Campus">
+                        <img src="pic1.JPG" alt="Mountain Campus">
                     </div>
                 </section>
 
@@ -149,19 +149,19 @@
                     <h3>Exchange Life Gallery</h3>
                     <div class="gallery-grid">
                         <figure class="gallery-item">
-                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Study">
+                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Study">
                             <figcaption>Study Space</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="images/IMG_3514.JPG" alt="Travel">
+                            <img src="IMG_3514.JPG" alt="Travel">
                             <figcaption>Culture Experience</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="images/IMG_4397.JPG" alt="Group">
+                            <img src="IMG_4397.JPG" alt="Group">
                             <figcaption>Friendships</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="images/A849C1F1-40B5-41E7-B204-B6F8AD39F313.JPG" alt="Dorm">
+                            <img src="A849C1F1-40B5-41E7-B204-B6F8AD39F313.JPG" alt="Dorm">
                             <figcaption>Exploration</figcaption>
                         </figure>
                     </div>
