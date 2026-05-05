@@ -296,7 +296,7 @@
 
                     <!-- DANGER ZONE — only visible when logged in -->
                     <div id="danger-zone" class="card hidden" style="margin-top: 1.5rem; border: 2px solid #ef4444;">
-                        <h4 style="color: #ef4444;">Danger Zone</h4>
+                        <h4 style="color: #ef4444;">Alert</h4>
                         <p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;">
                             Permanently delete your account and all associated plans. This action cannot be undone.
                         </p>
