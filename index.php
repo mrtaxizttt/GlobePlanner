@@ -405,6 +405,17 @@
                                     <option>Daily</option>
                                 </select>
                             </div>
+                            <div class="form-group" style="margin-top:1rem; border-top:1px solid #334155; padding-top:1rem;">
+                                <label style="display:block; margin-bottom:0.4rem;">Send Deadline Reminders Now</label>
+                                <p style="font-size:0.8rem; color:#6b7280; margin-bottom:0.75rem;">
+                                    Sends an email to your account address with all your current deadlines.
+                                    You must be logged in — the email is sent to the address you registered with.
+                                </p>
+                                <button id="send-reminder-btn" class="add-task-btn" style="width:100%;">
+                                    📧 Email Me My Deadlines
+                                </button>
+                                <p id="reminder-status" style="font-size:0.85rem; margin-top:0.5rem; display:none;"></p>
+                            </div>
                         </div>
                     </div>
 
