@@ -1,112 +1,93 @@
 <?php
-/**
- * plans.php — CRUD API for semester plans
- * Works with both SQLite and PostgreSQL (db.php handles the connection).
- */
+session_start();
+include 'db.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
-
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-
-require_once __DIR__ . '/db.php';
-// $pdo is available from db.php (both SQLite and PostgreSQL versions expose it)
-
-// ── Auth check ─────────────────────────────────────────────────────────────
-if (empty($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
-    exit(json_encode(['error' => 'You must be logged in to manage plans.']));
+    exit(json_encode(["status" => "error", "message" => "Unauthorized access."]));
 }
 
-$userId = (int) $_SESSION['user_id'];
-$method = $_SERVER['REQUEST_METHOD'];
+$user_id = $_SESSION['user_id'];
+$method  = $_SERVER['REQUEST_METHOD'];
 
-// ── GET — List or Search plans ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 1. GET — Search / Retrieve Plans
+// ─────────────────────────────────────────────
 if ($method === 'GET') {
     $search = trim($_GET['search'] ?? '');
-    $param  = '%' . $search . '%';
+
+    // FIX #4 (medium): removed htmlspecialchars() here — PDO binding already
+    // prevents SQL injection. htmlspecialchars is for HTML output, not DB queries.
+    $search_param = '%' . $search . '%';
 
     $stmt = $pdo->prepare(
-        'SELECT id, destination, university, start_date FROM plans
-         WHERE user_id = ? AND (destination ILIKE ? OR university ILIKE ?)
-         ORDER BY id DESC'
+        "SELECT * FROM plans WHERE user_id = ? AND (destination LIKE ? OR university LIKE ?)"
     );
-    $stmt->execute([$userId, $param, $param]);
-    echo json_encode(['plans' => $stmt->fetchAll()]);
-    exit;
+    $stmt->execute([$user_id, $search_param, $search_param]);
+
+    // FIX #7 (low): wrap result in {"plans":[...]} so script.js can read data.plans
+    echo json_encode(["plans" => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    exit();
 }
 
-// ── POST — Create a plan ───────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 2. POST — Create Plan
+// ─────────────────────────────────────────────
 if ($method === 'POST') {
+    // FIX #2 (critical): script.js sends JSON, not a form.
+    // PHP does not populate $_POST from a JSON body, so we must decode it manually.
     $body        = json_decode(file_get_contents('php://input'), true) ?? [];
     $destination = trim($body['destination'] ?? '');
     $university  = trim($body['university']  ?? '');
     $start_date  = trim($body['start_date']  ?? '');
 
-    if ($destination === '' || $university === '') {
-        http_response_code(422);
-        exit(json_encode(['error' => 'Destination and University are required.']));
+    if (empty($destination) || empty($university)) {
+        http_response_code(400);
+        exit(json_encode(["status" => "error", "message" => "Invalid form: Destination and University are required."]));
     }
-    if ($start_date === '') {
-        http_response_code(422);
-        exit(json_encode(['error' => 'Start date is required.']));
-    }
+
+    // FIX #5 (medium): removed htmlspecialchars() before INSERT — storing encoded
+    // entities in the DB causes &amp; etc. to appear as literal text in the UI.
+    // script.js already escapes output safely with its own escapeHtml() function.
 
     try {
-        // PostgreSQL needs RETURNING id to get the new row's id;
-        // SQLite ignores the RETURNING clause gracefully via lastInsertId().
         $stmt = $pdo->prepare(
-            'INSERT INTO plans (user_id, destination, university, start_date)
-             VALUES (?, ?, ?, ?) RETURNING id'
+            "INSERT INTO plans (user_id, destination, university, start_date) VALUES (?, ?, ?, ?)"
         );
-        $stmt->execute([$userId, $destination, $university, $start_date]);
-        $row   = $stmt->fetch();
-        $newId = $row['id'] ?? $pdo->lastInsertId();
+        $stmt->execute([$user_id, $destination, $university, $start_date]);
 
-        http_response_code(201);
-        echo json_encode([
-            'status'  => 'success',
-            'message' => 'Plan saved successfully.',
-            'plan'    => [
-                'id'          => (int) $newId,
-                'destination' => $destination,
-                'university'  => $university,
-                'start_date'  => $start_date
-            ]
-        ]);
+        echo json_encode(["status" => "success", "message" => "Plan written to database successfully!"]);
     } catch (PDOException $e) {
-        error_log('plans.php INSERT error: ' . $e->getMessage());
         http_response_code(500);
-        echo json_encode(['error' => 'Database error: could not save plan.']);
+        echo json_encode(["status" => "error", "message" => "Database error: Failed to insert plan."]);
     }
-    exit;
+    exit();
 }
 
-// ── DELETE — Remove a plan ─────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// 3. DELETE — Remove a Plan
+// ─────────────────────────────────────────────
 if ($method === 'DELETE') {
-    $id = (int) ($_GET['id'] ?? 0);
+    // FIX #3 (critical): DELETE method was completely missing.
+    // script.js calls fetch('plans.php?id=X', {method:'DELETE'}) — without this
+    // block the request fell through silently and caused a JSON parse error.
+    $id = (int)($_GET['id'] ?? 0);
 
     if ($id <= 0) {
         http_response_code(400);
-        exit(json_encode(['error' => 'Invalid plan ID.']));
+        exit(json_encode(["status" => "error", "message" => "Invalid plan ID."]));
     }
 
-    // AND user_id = ? ensures users can only delete their own plans
-    $stmt = $pdo->prepare('DELETE FROM plans WHERE id = ? AND user_id = ?');
-    $stmt->execute([$id, $userId]);
+    // The AND user_id = ? check ensures a user can only delete their own plans.
+    $stmt = $pdo->prepare("DELETE FROM plans WHERE id = ? AND user_id = ?");
+    $stmt->execute([$id, $user_id]);
 
     if ($stmt->rowCount() === 0) {
         http_response_code(404);
-        exit(json_encode(['error' => 'Plan not found or access denied.']));
+        exit(json_encode(["status" => "error", "message" => "Plan not found or access denied."]));
     }
 
-    echo json_encode(['status' => 'success', 'message' => 'Plan deleted.', 'deleted_id' => $id]);
-    exit;
+    echo json_encode(["status" => "success", "message" => "Plan deleted successfully."]);
+    exit();
 }
-
-http_response_code(405);
-echo json_encode(['error' => 'Method not allowed.']);
+?>
