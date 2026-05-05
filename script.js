@@ -828,6 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${describeWeather(wx.weathercode)}
                 `;
             } catch (err) {
+                console.error('Weather API error:', err);
                 weatherResult.innerHTML = '❌ Could not fetch weather. Please try again.';
             }
         });
@@ -872,9 +873,11 @@ document.addEventListener('DOMContentLoaded', () => {
             uniDropdown.style.display = 'none';
 
             try {
-                // Fetch universities from the Hipolabs API for the given country
+                // Fetch universities via our local PHP proxy.
+                // universities.hipolabs.com is HTTP-only, which browsers block on HTTPS
+                // pages (mixed-content policy). The PHP proxy fetches it server-side.
                 const res  = await fetch(
-                    `https://universities.hipolabs.com/search?country=${encodeURIComponent(country)}`
+                    `university_proxy.php?country=${encodeURIComponent(country)}`
                 );
                 const data = await res.json();
 
@@ -907,6 +910,73 @@ document.addEventListener('DOMContentLoaded', () => {
         uniDropdown.addEventListener('change', () => {
             if (uniDropdown.value && uniInput) {
                 uniInput.value = uniDropdown.value;
+            }
+        });
+    }
+
+
+    // ═════════════════════════════════════════════════════════════════
+    // DEADLINE EMAIL NOTIFICATIONS
+    // ─────────────────────────────────────────────────────────────────
+    // When the user clicks "Email Me My Deadlines" on the Profile page,
+    // JavaScript reads the deadlines from localStorage and POSTs them
+    // to notify.php. That script sends a formatted email to the address
+    // the user registered with, via the Brevo Transactional Email API.
+    // The user must be logged in — the recipient address comes from the
+    // server-side session, not from client input.
+    // ═════════════════════════════════════════════════════════════════
+    const sendReminderBtn    = document.getElementById('send-reminder-btn');
+    const reminderStatusEl   = document.getElementById('reminder-status');
+
+    if (sendReminderBtn) {
+        sendReminderBtn.addEventListener('click', async () => {
+            if (!isLoggedIn) {
+                alert('You must be logged in to send email reminders.');
+                loginModal.classList.remove('hidden');
+                return;
+            }
+
+            const deadlines = loadDeadlines();
+            if (deadlines.length === 0) {
+                if (reminderStatusEl) {
+                    reminderStatusEl.style.display = 'block';
+                    reminderStatusEl.style.color   = '#6b7280';
+                    reminderStatusEl.textContent   = 'You have no deadlines to send.';
+                }
+                return;
+            }
+
+            sendReminderBtn.disabled    = true;
+            sendReminderBtn.textContent = '⏳ Sending...';
+
+            try {
+                const res  = await fetch('notify.php', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:    JSON.stringify({ deadlines }),
+                });
+                const data = await res.json();
+
+                if (reminderStatusEl) {
+                    reminderStatusEl.style.display = 'block';
+                    if (res.ok) {
+                        reminderStatusEl.style.color = '#10b981';
+                        reminderStatusEl.textContent = '✅ ' + data.message;
+                    } else {
+                        reminderStatusEl.style.color = '#ef4444';
+                        reminderStatusEl.textContent = '❌ ' + (data.error || 'Could not send email.');
+                    }
+                }
+            } catch (err) {
+                console.error('Notification error:', err);
+                if (reminderStatusEl) {
+                    reminderStatusEl.style.display = 'block';
+                    reminderStatusEl.style.color   = '#ef4444';
+                    reminderStatusEl.textContent   = '❌ Could not reach the server. Please try again.';
+                }
+            } finally {
+                sendReminderBtn.disabled    = false;
+                sendReminderBtn.textContent = '📧 Email Me My Deadlines';
             }
         });
     }
