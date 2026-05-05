@@ -6,6 +6,25 @@
     <title>Globe Planner - Exchange Semester Organizer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/poppins@5.0.8/index.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Deadline highlight on calendar days */
+        .cal-day.deadline-day {
+            background: rgba(139, 92, 246, 0.25);
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            position: relative;
+        }
+        .dl-dot {
+            display: block;
+            width: 5px;
+            height: 5px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            margin: 2px auto 0;
+        }
+        /* Remove ×  button default look inside course list */
+        #course-list-ul li button:hover { color: #ef4444; }
+    </style>
 </head>
 <body>
 
@@ -129,24 +148,39 @@
                 </article>
 
                 <article id="deadlines" class="deadlines-section visible">
-                    <h3>Important Deadlines</h3>
-                    <div class="deadlines-grid">
-                        <div class="card deadline-card">
-                            <span class="deadline-date">May 15</span>
-                            <p class="deadline-task">Visa Application</p>
-                            <span class="status urgent">Urgent</span>
-                        </div>
-                        <div class="card deadline-card">
-                            <span class="deadline-date">June 01</span>
-                            <p class="deadline-task">Housing Deposit</p>
-                            <span class="status pending">Pending</span>
-                        </div>
-                        <div class="card deadline-card">
-                            <span class="deadline-date">July 10</span>
-                            <p class="deadline-task">Flight Booking</p>
-                            <span class="status upcoming">Upcoming</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                        <h3 style="margin:0;">Important Deadlines</h3>
+                        <button id="show-add-deadline-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:4px 12px;">+ Add Deadline</button>
+                    </div>
+
+                    <!-- Add Deadline Form (hidden by default) -->
+                    <div id="add-deadline-form" style="display:none; background:#1e2a3a; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+                        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
+                            <div style="flex:2; min-width:140px;">
+                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Task</label>
+                                <input id="dl-task" type="text" placeholder="e.g. Submit Learning Agreement" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            </div>
+                            <div style="flex:1; min-width:120px;">
+                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Date</label>
+                                <input id="dl-date" type="date" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            </div>
+                            <div style="flex:1; min-width:110px;">
+                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Status</label>
+                                <select id="dl-status" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                                    <option value="urgent">Urgent</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="upcoming" selected>Upcoming</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button id="save-deadline-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.4rem 1rem;">Save</button>
+                                <button id="cancel-deadline-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.4rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Deadline cards rendered here by JS -->
+                    <div class="deadlines-grid" id="deadlines-grid"></div>
 
                     <!-- TASKS SECTION -->
                     <section id="tasks" class="tasks-section">
