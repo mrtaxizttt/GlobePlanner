@@ -241,7 +241,233 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ─────────────────────────────────────────────
-    // 11. CALENDAR
+    // 11a. EDITABLE DESTINATION CARD
+    // ─────────────────────────────────────────────
+    const DEST_KEY = 'globePlannerDestination';
+
+    const defaultDest = {
+        university: 'Sungkyunwan University',
+        country:    'South Korea',
+        tag1:       'Bilateral',
+        tag2:       'Fall 2026'
+    };
+
+    function loadDestination() {
+        return JSON.parse(localStorage.getItem(DEST_KEY)) || defaultDest;
+    }
+
+    function renderDestination() {
+        const d = loadDestination();
+        document.getElementById('dest-university-text').textContent = d.university;
+        document.getElementById('dest-country-text').textContent    = d.country;
+        document.getElementById('dest-tag1').textContent            = d.tag1;
+        document.getElementById('dest-tag2').textContent            = d.tag2;
+    }
+
+    const editDestBtn   = document.getElementById('edit-destination-btn');
+    const destDisplay   = document.getElementById('destination-display');
+    const destEdit      = document.getElementById('destination-edit');
+    const saveDestBtn   = document.getElementById('save-destination-btn');
+    const cancelDestBtn = document.getElementById('cancel-destination-btn');
+
+    if (editDestBtn) {
+        editDestBtn.addEventListener('click', () => {
+            const d = loadDestination();
+            document.getElementById('edit-university').value = d.university;
+            document.getElementById('edit-country').value    = d.country;
+            document.getElementById('edit-tag1').value       = d.tag1;
+            document.getElementById('edit-tag2').value       = d.tag2;
+            destDisplay.style.display = 'none';
+            destEdit.style.display    = 'block';
+        });
+    }
+
+    if (cancelDestBtn) {
+        cancelDestBtn.addEventListener('click', () => {
+            destEdit.style.display    = 'none';
+            destDisplay.style.display = 'block';
+        });
+    }
+
+    if (saveDestBtn) {
+        saveDestBtn.addEventListener('click', () => {
+            const d = {
+                university: document.getElementById('edit-university').value.trim() || defaultDest.university,
+                country:    document.getElementById('edit-country').value.trim()    || defaultDest.country,
+                tag1:       document.getElementById('edit-tag1').value.trim()       || defaultDest.tag1,
+                tag2:       document.getElementById('edit-tag2').value.trim()       || defaultDest.tag2,
+            };
+            localStorage.setItem(DEST_KEY, JSON.stringify(d));
+            renderDestination();
+            destEdit.style.display    = 'none';
+            destDisplay.style.display = 'block';
+            // Also refresh the REST Countries card if country changed
+            loadCountryInfo(d.country);
+        });
+    }
+
+    renderDestination();
+
+    // ─────────────────────────────────────────────
+    // 11b. EDITABLE COURSE LIST
+    // ─────────────────────────────────────────────
+    const COURSES_KEY     = 'globePlannerCourses';
+    const defaultCourses  = [
+        'Computer Networks (6 ECTS)',
+        'Software Engineering (5 ECTS)',
+        'Data Structures (6 ECTS)',
+        'Probability and Statistics (6 ECTS)'
+    ];
+
+    function loadCourses() {
+        return JSON.parse(localStorage.getItem(COURSES_KEY)) || defaultCourses;
+    }
+
+    function renderCourses() {
+        const ul      = document.getElementById('course-list-ul');
+        const courses = loadCourses();
+        ul.innerHTML  = courses.map((c, i) =>
+            `<li style="display:flex; justify-content:space-between; align-items:center;">
+                <span>${escapeHtml(c)}</span>
+                <button onclick="deleteCourse(${i})" style="background:none; border:none; color:#6b7280; cursor:pointer; font-size:1rem; line-height:1; padding:0 4px;" title="Remove">&times;</button>
+            </li>`
+        ).join('');
+    }
+
+    window.deleteCourse = function(index) {
+        const courses = loadCourses();
+        courses.splice(index, 1);
+        localStorage.setItem(COURSES_KEY, JSON.stringify(courses));
+        renderCourses();
+    };
+
+    const addCourseBtn    = document.getElementById('add-course-btn');
+    const courseAddRow    = document.getElementById('course-add-row');
+    const saveCourseBtn   = document.getElementById('save-course-btn');
+    const cancelCourseBtn = document.getElementById('cancel-course-btn');
+    const newCourseInput  = document.getElementById('new-course-input');
+
+    if (addCourseBtn) {
+        addCourseBtn.addEventListener('click', () => {
+            courseAddRow.style.display = courseAddRow.style.display === 'none' ? 'block' : 'none';
+            if (newCourseInput) newCourseInput.focus();
+        });
+    }
+    if (cancelCourseBtn) {
+        cancelCourseBtn.addEventListener('click', () => { courseAddRow.style.display = 'none'; });
+    }
+    if (saveCourseBtn) {
+        saveCourseBtn.addEventListener('click', () => {
+            const val = newCourseInput.value.trim();
+            if (!val) return;
+            const courses = loadCourses();
+            courses.push(val);
+            localStorage.setItem(COURSES_KEY, JSON.stringify(courses));
+            renderCourses();
+            newCourseInput.value = '';
+            courseAddRow.style.display = 'none';
+        });
+    }
+    if (newCourseInput) {
+        newCourseInput.addEventListener('keypress', e => { if (e.key === 'Enter') saveCourseBtn.click(); });
+    }
+
+    renderCourses();
+
+    // ─────────────────────────────────────────────
+    // 11c. EDITABLE DEADLINES (persisted + calendar sync)
+    // ─────────────────────────────────────────────
+    const DL_KEY = 'globePlannerDeadlines';
+
+    const defaultDeadlines = [
+        { id: 1, task: 'Visa Application', date: '2026-05-15', status: 'urgent'   },
+        { id: 2, task: 'Housing Deposit',  date: '2026-06-01', status: 'pending'  },
+        { id: 3, task: 'Flight Booking',   date: '2026-07-10', status: 'upcoming' },
+    ];
+
+    function loadDeadlines() {
+        return JSON.parse(localStorage.getItem(DL_KEY)) || defaultDeadlines;
+    }
+
+    function saveDeadlines(list) {
+        localStorage.setItem(DL_KEY, JSON.stringify(list));
+    }
+
+    function formatDeadlineDisplay(dateStr) {
+        // Converts "2026-05-15" → "May 15"
+        const [, m, d] = dateStr.split('-');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return months[parseInt(m, 10) - 1] + ' ' + parseInt(d, 10);
+    }
+
+    function renderDeadlines() {
+        const grid = document.getElementById('deadlines-grid');
+        if (!grid) return;
+        const list = loadDeadlines();
+
+        if (list.length === 0) {
+            grid.innerHTML = '<p style="color:#6b7280; font-style:italic;">No deadlines yet. Click "+ Add Deadline" to create one.</p>';
+            renderCalendar();
+            return;
+        }
+
+        grid.innerHTML = list.map(dl => `
+            <div class="card deadline-card" style="position:relative;">
+                <button onclick="deleteDeadline(${dl.id})"
+                    style="position:absolute; top:8px; right:8px; background:none; border:none; color:#6b7280; cursor:pointer; font-size:1rem; line-height:1;"
+                    title="Remove">&times;</button>
+                <span class="deadline-date">${formatDeadlineDisplay(dl.date)}</span>
+                <p class="deadline-task">${escapeHtml(dl.task)}</p>
+                <span class="status ${dl.status}">${dl.status.charAt(0).toUpperCase() + dl.status.slice(1)}</span>
+            </div>
+        `).join('');
+
+        // Sync calendar so deadline dates are highlighted
+        renderCalendar();
+    }
+
+    window.deleteDeadline = function(id) {
+        const list = loadDeadlines().filter(d => d.id !== id);
+        saveDeadlines(list);
+        renderDeadlines();
+    };
+
+    // Add deadline form wiring
+    const showAddDlBtn   = document.getElementById('show-add-deadline-btn');
+    const addDlForm      = document.getElementById('add-deadline-form');
+    const saveDlBtn      = document.getElementById('save-deadline-btn');
+    const cancelDlBtn    = document.getElementById('cancel-deadline-btn');
+
+    if (showAddDlBtn) {
+        showAddDlBtn.addEventListener('click', () => {
+            addDlForm.style.display = addDlForm.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+    if (cancelDlBtn) {
+        cancelDlBtn.addEventListener('click', () => { addDlForm.style.display = 'none'; });
+    }
+    if (saveDlBtn) {
+        saveDlBtn.addEventListener('click', () => {
+            const task   = document.getElementById('dl-task').value.trim();
+            const date   = document.getElementById('dl-date').value;
+            const status = document.getElementById('dl-status').value;
+            if (!task || !date) { alert('Please enter both a task name and a date.'); return; }
+            const list = loadDeadlines();
+            list.push({ id: Date.now(), task, date, status });
+            // Sort chronologically
+            list.sort((a, b) => a.date.localeCompare(b.date));
+            saveDeadlines(list);
+            renderDeadlines();
+            document.getElementById('dl-task').value = '';
+            document.getElementById('dl-date').value = '';
+            addDlForm.style.display = 'none';
+        });
+    }
+
+    renderDeadlines();
+
+    // ─────────────────────────────────────────────
+    // 11. CALENDAR — with deadline date highlighting
     // ─────────────────────────────────────────────
     let calDate = new Date();
 
@@ -258,11 +484,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysCount = new Date(year, month + 1, 0).getDate();
         const today     = new Date();
 
+        // Build a Set of day-numbers that have a deadline this month
+        const deadlineDays = new Set();
+        loadDeadlines().forEach(dl => {
+            const [y, m, d] = dl.date.split('-').map(Number);
+            if (y === year && m - 1 === month) deadlineDays.add(d);
+        });
+
         daysEl.innerHTML = '';
         for (let i = 0; i < firstDay; i++) daysEl.innerHTML += '<div></div>';
         for (let d = 1; d <= daysCount; d++) {
-            const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-            daysEl.innerHTML += `<div class="cal-day${isToday ? ' today' : ''}">${d}</div>`;
+            const isToday    = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+            const isDeadline = deadlineDays.has(d);
+            let cls = 'cal-day';
+            if (isToday)    cls += ' today';
+            if (isDeadline) cls += ' deadline-day';
+            daysEl.innerHTML += `<div class="${cls}">${d}${isDeadline ? '<span class="dl-dot"></span>' : ''}</div>`;
         }
     }
 
@@ -474,25 +711,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // ═════════════════════════════════════════════════════════════════
     // API 1 — STATIC HTML API: REST Countries
     // ─────────────────────────────────────────────────────────────────
-    // Fetches fixed data about South Korea from restcountries.com.
-    // This is a Static API because:
-    //   - The target country (South Korea) is hardcoded, not user-supplied.
-    //   - The content is the same every time the page loads.
-    //   - No user input is processed.
+    // Fetches data about the user's saved destination country from
+    // restcountries.com. The content is fixed for the current destination
+    // (no user input processed) — making it a Static API.
+    // It also refreshes automatically when the user updates their
+    // destination card, keeping it in sync.
     // External service: https://restcountries.com/v3.1/name/{country}
     // No API key required — the service is public and free.
     // ═════════════════════════════════════════════════════════════════
-    async function loadCountryInfo() {
+    async function loadCountryInfo(countryOverride) {
         const container = document.getElementById('country-info-content');
         if (!container) return;
 
-        try {
-            // Request data for the hardcoded destination country: South Korea
-            const res  = await fetch('https://restcountries.com/v3.1/name/south%20korea?fullText=true');
-            const data = await res.json();
-            const c    = data[0]; // The API returns an array; we take the first result
+        // Use the provided country, or fall back to the saved destination
+        const country = countryOverride || loadDestination().country;
+        container.innerHTML = '<p style="color:#6b7280; font-style:italic;">Loading country data...</p>';
 
-            // Extract the fields we want to display
+        try {
+            const res  = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(country)}`);
+            const data = await res.json();
+            const c    = data[0];
+
             const flag     = c.flags.svg;
             const capital  = c.capital?.[0] ?? 'N/A';
             const region   = c.region;
@@ -500,9 +739,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const currency = Object.values(c.currencies)[0];
             const lang     = Object.values(c.languages)[0];
 
-            // Inject the data into the DOM as a styled info card
             container.innerHTML = `
-                <img src="${flag}" alt="Flag of South Korea"
+                <img src="${flag}" alt="Flag of ${escapeHtml(country)}"
                      style="width:80px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem 2rem; font-size:0.875rem;">
                     <div><span style="color:#6b7280;">Capital</span><br><strong>${capital}</strong></div>
@@ -516,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Run once on page load — no user interaction needed
+    // Run on page load using the saved destination country
     loadCountryInfo();
 
 
@@ -655,10 +893,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 uniDropdown.style.display = 'block';
-                uniStatus.textContent = ` Found ${data.length} universities. Select one to fill the field.`;
+                uniStatus.textContent = `✅ Found ${data.length} universities. Select one to fill the field.`;
 
             } catch (err) {
-                uniStatus.textContent = ' Could not reach the universities API. Please try again.';
+                uniStatus.textContent = '❌ Could not reach the universities API. Please try again.';
             }
         });
     }
