@@ -73,22 +73,60 @@
                 </div>
 
                 <div class="dashboard-grid">
-                    <article class="card destination-card">
-                        <h3>Current Destination</h3>
-                        <p>Sungkyunwan University, South Korea</p>
-                        <span class="tag">Bilateral</span>
-                        <span class="tag">Fall 2026</span>
+
+                    <!-- EDITABLE DESTINATION CARD -->
+                    <article class="card destination-card" id="destination-card">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <h3>Current Destination</h3>
+                            <button id="edit-destination-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:3px 10px;">✏️ Edit</button>
+                        </div>
+                        <!-- Display mode -->
+                        <div id="destination-display">
+                            <p id="dest-university-text" style="font-weight:600; margin-bottom:0.3rem;">Sungkyunwan University</p>
+                            <p id="dest-country-text" style="color:#94a3b8; font-size:0.9rem; margin-bottom:0.6rem;">South Korea</p>
+                            <span class="tag" id="dest-tag1">Bilateral</span>
+                            <span class="tag" id="dest-tag2">Fall 2026</span>
+                        </div>
+                        <!-- Edit mode (hidden by default) -->
+                        <div id="destination-edit" style="display:none; margin-top:0.75rem;">
+                            <input id="edit-university" type="text" placeholder="University name" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-country" type="text" placeholder="Country" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-tag1" type="text" placeholder="Tag 1 (e.g. Bilateral)" style="width:48%; margin-right:4%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-tag2" type="text" placeholder="Tag 2 (e.g. Fall 2026)" style="width:48%; margin-bottom:0.75rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <button id="save-destination-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.35rem 0.9rem;">Save</button>
+                            <button id="cancel-destination-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                        </div>
                     </article>
+
+                    <!-- EDITABLE COURSES CARD -->
                     <article class="card courses-card">
-                        <h3>Selected Courses</h3>
-                        <ul class="course-list">
-                            <li>Computer Networks (6 ECTS)</li>
-                            <li>Software Engineering (5 ECTS)</li>
-                            <li>Data Structures (6 ECTS)</li>
-                            <li>Probability and Statistics (6 ECTS)</li>
-                        </ul>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <h3>Selected Courses</h3>
+                            <button id="add-course-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:3px 10px;">+ Add</button>
+                        </div>
+                        <ul class="course-list" id="course-list-ul"></ul>
+                        <!-- Add course input (hidden by default) -->
+                        <div id="course-add-row" style="display:none; margin-top:0.75rem; display:none;">
+                            <input id="new-course-input" type="text" placeholder="e.g. Machine Learning (6 ECTS)" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <button id="save-course-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.35rem 0.9rem;">Add Course</button>
+                            <button id="cancel-course-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                        </div>
                     </article>
                 </div>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     API 1 — STATIC HTML API: REST Countries
+                     Fetches fixed country info (flag, region, capital,
+                     currency) from restcountries.com for South Korea.
+                     No user input — content is the same on every load.
+                     Source: https://restcountries.com/v3.1/name/{country}
+                ════════════════════════════════════════════════════════ -->
+                <article class="card" id="country-info-card" style="margin-top:1.5rem;">
+                    <h3>🌍 Destination Country Info</h3>
+                    <div id="country-info-content" style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; margin-top:0.75rem;">
+                        <p style="color:#6b7280; font-style:italic;">Loading country data...</p>
+                    </div>
+                </article>
 
                 <article id="deadlines" class="deadlines-section visible">
                     <h3>Important Deadlines</h3>
@@ -128,7 +166,7 @@
                         </div>
                     </section>
 
-                    <section id="gallery" class="gallery-section">
+                    <section class="gallery-section">
                         <div class="calendar-wrapper">
                             <div class="calendar-container">
                                 <div class="calendar-header">
@@ -155,6 +193,10 @@
                         <figure class="gallery-item">
                             <img src="IMG_3514.JPG" alt="Travel">
                             <figcaption>Culture Experience</figcaption>
+                        </figure>
+                        <figure class="gallery-item">
+                            <img src="IMG_4015.JPG" alt="Campus">
+                            <figcaption>Campus Life</figcaption>
                         </figure>
                         <figure class="gallery-item">
                             <img src="IMG_4397.JPG" alt="Group">
@@ -193,15 +235,53 @@
                     <form id="plan-form" class="plan-form">
                         <fieldset>
                             <legend>Academic Details</legend>
-                            <!-- IDs match what plans.php and script.js expect -->
+
                             <div class="form-group">
                                 <label for="plan-destination">Destination Country</label>
-                                <input type="text" id="plan-destination" placeholder="e.g., Spain, Germany, Japan" required>
+                                <input type="text" id="plan-destination" placeholder="e.g., Spain, Germany, Japan" required autocomplete="off">
                             </div>
+
+                            <!-- ═══════════════════════════════════════════════════════
+                                 API 2 — DYNAMIC JS API: Open-Meteo Weather
+                                 When the user types a country and clicks "Check Weather",
+                                 JavaScript first geocodes the query via Open-Meteo's
+                                 geocoding API, then fetches the current temperature and
+                                 weather code. Both requests go to open-meteo.com — a
+                                 free, key-less 3rd-party service. The result is injected
+                                 dynamically into #weather-result without a page reload.
+                                 Source: https://open-meteo.com/
+                            ════════════════════════════════════════════════════════ -->
+                            <div class="form-group">
+                                <button type="button" id="weather-btn" class="ctrl-btn" style="margin-bottom:0.5rem;">
+                                    🌤 Check Weather at Destination
+                                </button>
+                                <div id="weather-result" style="display:none; background:var(--card-bg,#1e2235); border-radius:12px; padding:0.85rem 1rem; margin-top:0.5rem; font-size:0.9rem;"></div>
+                            </div>
+
+                            <!-- ═══════════════════════════════════════════════════════
+                                 API 3 — DATABASE-CONNECTED API: Hipolabs Universities
+                                 When the user types a country and clicks "Search Universities",
+                                 JavaScript fetches a list of universities from the free
+                                 Hipolabs API (universities.hipolabs.com). The user selects
+                                 a university from the dropdown, which fills the university
+                                 field. On form submit, that data is sent to plans.php and
+                                 saved to the PostgreSQL database — fulfilling the requirement
+                                 that 3rd-party data is retrieved and persisted to the DB.
+                                 Source: http://universities.hipolabs.com/
+                            ════════════════════════════════════════════════════════ -->
                             <div class="form-group">
                                 <label for="plan-university">Host University</label>
-                                <input type="text" id="plan-university" placeholder="University Name" required>
+                                <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+                                    <input type="text" id="plan-university" placeholder="Type or search below" required style="flex:1;">
+                                    <button type="button" id="uni-search-btn" class="ctrl-btn">🔍 Search Universities</button>
+                                </div>
+                                <!-- Dropdown populated by the Hipolabs API -->
+                                <select id="uni-dropdown" style="display:none; width:100%; padding:0.5rem; border-radius:8px; border:1px solid #334155; background:var(--card-bg,#1e2235); color:inherit; font-size:0.9rem;">
+                                    <option value="">— Select a university —</option>
+                                </select>
+                                <p id="uni-status" style="font-size:0.8rem; color:#6b7280; margin-top:0.3rem; display:none;"></p>
                             </div>
+
                             <div class="form-group">
                                 <label for="course-count">Number of Courses</label>
                                 <input type="number" id="course-count" min="3" max="10" value="5">
@@ -250,7 +330,7 @@
                 <div class="profile-container">
                     <div class="profile-header-card">
                         <div class="profile-avatar-large">
-                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
+                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
                         </div>
                         <div class="profile-info">
                             <h3 id="profile-name">Guest User</h3>
@@ -296,7 +376,7 @@
 
                     <!-- DANGER ZONE — only visible when logged in -->
                     <div id="danger-zone" class="card hidden" style="margin-top: 1.5rem; border: 2px solid #ef4444;">
-                        <h4 style="color: #ef4444;">Alert</h4>
+                        <h4 style="color: #ef4444;">Danger Zone</h4>
                         <p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;">
                             Permanently delete your account and all associated plans. This action cannot be undone.
                         </p>
@@ -361,7 +441,6 @@
     </div>
 
     <script>
-        // Tab switcher for Login / Register inside the modal
         function showTab(tab) {
             document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
             document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
