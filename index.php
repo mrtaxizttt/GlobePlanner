@@ -57,7 +57,7 @@
                         <button class="hero-cta-btn" onclick="switchView('plan-view')">Start Planning</button>
                     </div>
                     <div class="hero-image-container">
-                        <img src="pic1.JPG" alt="Mountain Campus">
+                        <img src="images/pic1.JPG" alt="Mountain Campus">
                     </div>
                 </section>
 
@@ -109,63 +109,59 @@
                             <span class="status upcoming">Upcoming</span>
                         </div>
                     </div>
-                                    <!-- TASKS SECTION -->
-                <section id="tasks" class="tasks-section">
-                    <h3>My Tasks</h3>
-                    <div class="task-input-container">
-                        <input type="text" id="new-task-input" placeholder="Add a new task..." maxlength="100">
-                        <button id="add-task-btn" class="add-task-btn">Add Task</button>
-                    </div>
-                    
-                    <div class="task-filters">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        <button class="filter-btn" data-filter="active">Active</button>
-                        <button class="filter-btn" data-filter="completed">Completed</button>
-                    </div>
-                    
-                    <div class="task-list" id="task-list">
-                        <!-- Tasks will be dynamically added here -->
-                    </div>
-                    
-                    <div class="task-stats" id="task-stats">
-                        <span id="completed-count">0</span> of <span id="total-count">0</span> tasks completed
-                    </div>
-                </section>
 
-                <section id="gallery" class="gallery-section">
-                    
-                    <div class="calendar-wrapper">
-                        <div class="calendar-container">
-                            <div class="calendar-header">
-                                <button id="prev-month" class="cal-nav-btn">&lt;</button>
-                                <h4 id="current-month-year"></h4>
-                                <button id="next-month" class="cal-nav-btn">&gt;</button>
-                            </div>
-                            <div class="calendar-weekdays">
-                                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-                            </div>
-                            <div class="calendar-days" id="calendar-days"></div>
+                    <!-- TASKS SECTION -->
+                    <section id="tasks" class="tasks-section">
+                        <h3>My Tasks</h3>
+                        <div class="task-input-container">
+                            <input type="text" id="new-task-input" placeholder="Add a new task..." maxlength="100">
+                            <button id="add-task-btn" class="add-task-btn">Add Task</button>
                         </div>
-                    </div>
+                        <div class="task-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="active">Active</button>
+                            <button class="filter-btn" data-filter="completed">Completed</button>
+                        </div>
+                        <div class="task-list" id="task-list"></div>
+                        <div class="task-stats" id="task-stats">
+                            <span id="completed-count">0</span> of <span id="total-count">0</span> tasks completed
+                        </div>
+                    </section>
+
+                    <section id="gallery" class="gallery-section">
+                        <div class="calendar-wrapper">
+                            <div class="calendar-container">
+                                <div class="calendar-header">
+                                    <button id="prev-month" class="cal-nav-btn">&lt;</button>
+                                    <h4 id="current-month-year"></h4>
+                                    <button id="next-month" class="cal-nav-btn">&gt;</button>
+                                </div>
+                                <div class="calendar-weekdays">
+                                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                                </div>
+                                <div class="calendar-days" id="calendar-days"></div>
+                            </div>
+                        </div>
+                    </section>
                 </article>
 
                 <section id="gallery" class="gallery-section">
                     <h3>Exchange Life Gallery</h3>
                     <div class="gallery-grid">
                         <figure class="gallery-item">
-                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Study">
+                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Study">
                             <figcaption>Study Space</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="IMG_3514.JPG" alt="Travel">
+                            <img src="images/IMG_3514.JPG" alt="Travel">
                             <figcaption>Culture Experience</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="IMG_4397.JPG" alt="Group">
+                            <img src="images/IMG_4397.JPG" alt="Group">
                             <figcaption>Friendships</figcaption>
                         </figure>
                         <figure class="gallery-item">
-                            <img src="A849C1F1-40B5-41E7-B204-B6F8AD39F313.JPG" alt="Dorm">
+                            <img src="images/A849C1F1-40B5-41E7-B204-B6F8AD39F313.JPG" alt="Dorm">
                             <figcaption>Exploration</figcaption>
                         </figure>
                     </div>
@@ -197,13 +193,14 @@
                     <form id="plan-form" class="plan-form">
                         <fieldset>
                             <legend>Academic Details</legend>
+                            <!-- IDs match what plans.php and script.js expect -->
                             <div class="form-group">
-                                <label for="destination">Destination Country</label>
-                                <input type="text" id="destination" placeholder="e.g., Spain, Germany, Japan" required>
+                                <label for="plan-destination">Destination Country</label>
+                                <input type="text" id="plan-destination" placeholder="e.g., Spain, Germany, Japan" required>
                             </div>
                             <div class="form-group">
-                                <label for="university">Host University</label>
-                                <input type="text" id="university" placeholder="University Name" required>
+                                <label for="plan-university">Host University</label>
+                                <input type="text" id="plan-university" placeholder="University Name" required>
                             </div>
                             <div class="form-group">
                                 <label for="course-count">Number of Courses</label>
@@ -221,8 +218,8 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="start-date">Start Date</label>
-                                <input type="date" id="start-date">
+                                <label for="plan-start-date">Start Date</label>
+                                <input type="date" id="plan-start-date">
                             </div>
                         </fieldset>
                         <div class="form-actions">
@@ -230,6 +227,18 @@
                             <button type="reset" class="reset-btn">Clear Form</button>
                         </div>
                     </form>
+
+                    <!-- MY PLANS LIST — displayed below the form -->
+                    <div class="my-plans-section" style="margin-top: 2rem;">
+                        <h3>My Saved Plans</h3>
+                        <div class="task-input-container" style="margin-bottom: 1rem;">
+                            <input type="text" id="plan-search" placeholder="Search by destination or university...">
+                            <button id="plan-search-btn" class="add-task-btn">Search</button>
+                        </div>
+                        <div id="plans-list">
+                            <!-- Plans are loaded dynamically by script.js -->
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -241,12 +250,12 @@
                 <div class="profile-container">
                     <div class="profile-header-card">
                         <div class="profile-avatar-large">
-                            <img src="17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
+                            <img src="images/17BD078B-EB8D-4ADD-9C58-D51C32D1B0D4.JPG" alt="Profile">
                         </div>
                         <div class="profile-info">
                             <h3 id="profile-name">Guest User</h3>
                             <p>Exchange Student • Computer Science</p>
-                            <span class="tag" id="profile-status" style="background-color: #6b7280; color: white;">Not Logged In</span>
+                            <span class="tag" id="profile-status">Not Logged In</span>
                         </div>
                     </div>
                     
@@ -263,7 +272,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Student ID</label>
-                                <input type="text" value="STU-0000" disabled>
+                                <input type="text" value="STU-0000">
                             </div>
                         </div>
                         <div class="card">
@@ -285,32 +294,79 @@
                         </div>
                     </div>
 
-                    <div class="form-actions" style="margin-top: 20px; text-align: center;">
-                        <button id="delete-profile-btn" style="background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer;">Delete Profile</button>
+                    <!-- DANGER ZONE — only visible when logged in -->
+                    <div id="danger-zone" class="card hidden" style="margin-top: 1.5rem; border: 2px solid #ef4444;">
+                        <h4 style="color: #ef4444;">Danger Zone</h4>
+                        <p style="margin-bottom: 1rem; color: #6b7280; font-size: 0.9rem;">
+                            Permanently delete your account and all associated plans. This action cannot be undone.
+                        </p>
+                        <button id="delete-account-btn" class="login-submit-btn" style="background: #ef4444;">
+                            Delete My Account
+                        </button>
                     </div>
                 </div>
             </section>
 
-    <!-- LOGIN MODAL -->
+        </main>
+    </div>
+
+    <!-- LOGIN / REGISTER MODAL -->
     <div id="login-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Log In</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="login-email" placeholder="name.surname@vdu.lt" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="login-submit-btn">Log In</button>
-                <button type="button" id="modal-register-btn" class="login-submit-btn" style="margin-top: 10px; background-color: #6366f1;">Register</button>
-            </form>
+
+            <!-- TAB SWITCHER -->
+            <div class="modal-tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+                <button id="tab-login" class="login-submit-btn" onclick="showTab('login')" style="flex:1;">Log In</button>
+                <button id="tab-register" class="login-submit-btn" onclick="showTab('register')" style="flex:1; background: #7c3aed;">Register</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="form-login">
+                <h2>Log In</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="login-email" placeholder="name.surname@vdu.lt" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="login-submit-btn">Log In</button>
+                </form>
+            </div>
+
+            <!-- REGISTER FORM (hidden by default) -->
+            <div id="form-register" style="display: none;">
+                <h2>Create Account</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="register-name" placeholder="Name Surname" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="register-email" placeholder="name.surname@vdu.lt" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password <span style="font-size:0.8rem; color:#6b7280;">(min. 8 characters)</span></label>
+                        <input type="password" id="register-password" placeholder="••••••••" required minlength="8">
+                    </div>
+                    <button type="submit" class="login-submit-btn" style="background: #7c3aed;">Create Account</button>
+                </form>
+            </div>
+
         </div>
     </div>
 
+    <script>
+        // Tab switcher for Login / Register inside the modal
+        function showTab(tab) {
+            document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+        }
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
