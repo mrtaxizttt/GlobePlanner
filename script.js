@@ -185,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         profileInputEmail.value = 'guest@example.com';
 
         if (dangerZone) dangerZone.classList.add('hidden');
-
         const plansList = document.getElementById('plans-list');
         if (plansList) plansList.innerHTML = '<p>Please log in to see your plans.</p>';
     }
@@ -193,109 +192,92 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     // 9. NAVIGATION
     // ─────────────────────────────────────────────
-    const navItems     = document.querySelectorAll('.nav-item[data-target]');
-    const viewSections = document.querySelectorAll('.view-section');
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            switchView(item.dataset.target);
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
 
-    function switchView(targetId) {
-        navItems.forEach(item =>
-            item.classList.toggle('active', item.getAttribute('data-target') === targetId)
-        );
-        viewSections.forEach(section =>
-            section.classList.toggle('active', section.id === targetId)
-        );
-        document.querySelector('.main-content').scrollTop = 0;
-        if (targetId === 'plan-view' && isLoggedIn) loadPlans();
+    window.switchView = function(viewId) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById(viewId);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(i => {
+            i.classList.toggle('active', i.dataset.target === viewId);
+        });
+    };
+
+    // ─────────────────────────────────────────────
+    // 10. THEME / FONT / DEADLINES TOGGLES
+    // ─────────────────────────────────────────────
+    const themeToggle   = document.getElementById('theme-toggle');
+    const fontToggle    = document.getElementById('font-size-toggle');
+    const deadlineToggle = document.getElementById('deadline-toggle');
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            themeToggle.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
+        });
     }
-
-    navItems.forEach(item =>
-        item.addEventListener('click', () => switchView(item.getAttribute('data-target')))
-    );
-    window.switchView = switchView;
-
-    // ─────────────────────────────────────────────
-    // 10. ACCESSIBILITY CONTROLS
-    // ─────────────────────────────────────────────
-    const themeBtn           = document.getElementById('theme-toggle');
-    const fontBtn            = document.getElementById('font-size-toggle');
-    const deadlineBtn        = document.getElementById('deadline-toggle');
-    const deadlinesContainer = document.getElementById('deadlines');
-
-    themeBtn.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        themeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
-    });
-
-    const fontSizes = [16, 18, 20];
-    let fontStep = 0;
-    fontBtn.addEventListener('click', () => {
-        fontStep = (fontStep + 1) % fontSizes.length;
-        document.documentElement.style.setProperty('--font-base', fontSizes[fontStep] + 'px');
-        document.body.style.fontSize = fontSizes[fontStep] + 'px';
-        fontBtn.textContent = 'Text Size: ' + fontSizes[fontStep] + 'px';
-    });
-
-    deadlineBtn.addEventListener('click', () => {
-        const isHidden = deadlinesContainer.classList.toggle('hidden');
-        deadlineBtn.textContent = isHidden ? 'Show Deadlines' : 'Hide Deadlines';
-    });
+    if (fontToggle) {
+        let big = false;
+        fontToggle.addEventListener('click', () => {
+            big = !big;
+            document.body.style.fontSize = big ? '1.15rem' : '';
+            fontToggle.textContent = big ? 'Default Text' : 'Increase Text';
+        });
+    }
+    if (deadlineToggle) {
+        deadlineToggle.addEventListener('click', () => {
+            const dl = document.getElementById('deadlines');
+            if (dl) {
+                dl.classList.toggle('visible');
+                deadlineToggle.textContent = dl.classList.contains('visible') ? 'Hide Deadlines' : 'Show Deadlines';
+            }
+        });
+    }
 
     // ─────────────────────────────────────────────
     // 11. CALENDAR
     // ─────────────────────────────────────────────
-    const calendarDays     = document.getElementById('calendar-days');
-    const currentMonthYear = document.getElementById('current-month-year');
-    const prevMonthBtn     = document.getElementById('prev-month');
-    const nextMonthBtn     = document.getElementById('next-month');
-
     let calDate = new Date();
-    const today = new Date();
-    const demoDeadlines = [
-        { month: 5,  day: 15, label: 'Visa Application' },
-        { month: 6,  day: 1,  label: 'Housing Deposit'  },
-        { month: 7,  day: 10, label: 'Flight Booking'   }
-    ];
 
     function renderCalendar() {
+        const monthYearEl = document.getElementById('current-month-year');
+        const daysEl      = document.getElementById('calendar-days');
+        if (!monthYearEl || !daysEl) return;
+
         const year  = calDate.getFullYear();
         const month = calDate.getMonth();
-        currentMonthYear.textContent =
-            calDate.toLocaleString('default', { month: 'long' }) + ' ' + year;
-        calendarDays.innerHTML = '';
+        monthYearEl.textContent = calDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
-        const firstDay    = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDay  = new Date(year, month, 1).getDay();
+        const daysCount = new Date(year, month + 1, 0).getDate();
+        const today     = new Date();
 
-        for (let i = 0; i < firstDay; i++) {
-            const empty = document.createElement('div');
-            empty.classList.add('cal-day', 'empty');
-            calendarDays.appendChild(empty);
-        }
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayDiv = document.createElement('div');
-            dayDiv.classList.add('cal-day');
-            dayDiv.textContent = day;
-            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear())
-                dayDiv.classList.add('today');
-            const dl = demoDeadlines.find(d => d.month === month + 1 && d.day === day);
-            if (dl) {
-                dayDiv.classList.add('deadline');
-                dayDiv.title = dl.label;
-                dayDiv.addEventListener('click', () => alert('Deadline: ' + dl.label));
-            }
-            calendarDays.appendChild(dayDiv);
+        daysEl.innerHTML = '';
+        for (let i = 0; i < firstDay; i++) daysEl.innerHTML += '<div></div>';
+        for (let d = 1; d <= daysCount; d++) {
+            const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+            daysEl.innerHTML += `<div class="cal-day${isToday ? ' today' : ''}">${d}</div>`;
         }
     }
 
-    prevMonthBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); });
-    nextMonthBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); });
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    if (prevBtn) prevBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); });
     renderCalendar();
 
     // ─────────────────────────────────────────────
-    // 12. PLANS CRUD
+    // 12. PLANS — CRUD
     // ─────────────────────────────────────────────
     const planForm    = document.getElementById('plan-form');
-    const savePlanBtn = document.getElementById('save-plan-btn');
     const plansList   = document.getElementById('plans-list');
+    const savePlanBtn = document.getElementById('save-plan-btn');
     const searchInput = document.getElementById('plan-search');
     const searchBtn   = document.getElementById('plan-search-btn');
 
@@ -324,6 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 alert('Plan saved successfully!');
                 planForm.reset();
+                // Reset university dropdown too
+                const dd = document.getElementById('uni-dropdown');
+                if (dd) { dd.style.display = 'none'; dd.innerHTML = '<option value="">— Select a university —</option>'; }
+                const us = document.getElementById('uni-status');
+                if (us) us.style.display = 'none';
                 loadPlans();
             } else {
                 const msg = data.errors ? Object.values(data.errors).join('\n') : (data.error || 'Failed to save plan.');
@@ -482,4 +469,208 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHtml(str) {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+
+
+    // ═════════════════════════════════════════════════════════════════
+    // API 1 — STATIC HTML API: REST Countries
+    // ─────────────────────────────────────────────────────────────────
+    // Fetches fixed data about South Korea from restcountries.com.
+    // This is a Static API because:
+    //   - The target country (South Korea) is hardcoded, not user-supplied.
+    //   - The content is the same every time the page loads.
+    //   - No user input is processed.
+    // External service: https://restcountries.com/v3.1/name/{country}
+    // No API key required — the service is public and free.
+    // ═════════════════════════════════════════════════════════════════
+    async function loadCountryInfo() {
+        const container = document.getElementById('country-info-content');
+        if (!container) return;
+
+        try {
+            // Request data for the hardcoded destination country: South Korea
+            const res  = await fetch('https://restcountries.com/v3.1/name/south%20korea?fullText=true');
+            const data = await res.json();
+            const c    = data[0]; // The API returns an array; we take the first result
+
+            // Extract the fields we want to display
+            const flag     = c.flags.svg;
+            const capital  = c.capital?.[0] ?? 'N/A';
+            const region   = c.region;
+            const pop      = c.population.toLocaleString();
+            const currency = Object.values(c.currencies)[0];
+            const lang     = Object.values(c.languages)[0];
+
+            // Inject the data into the DOM as a styled info card
+            container.innerHTML = `
+                <img src="${flag}" alt="Flag of South Korea"
+                     style="width:80px; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem 2rem; font-size:0.875rem;">
+                    <div><span style="color:#6b7280;">Capital</span><br><strong>${capital}</strong></div>
+                    <div><span style="color:#6b7280;">Region</span><br><strong>${region}</strong></div>
+                    <div><span style="color:#6b7280;">Population</span><br><strong>${pop}</strong></div>
+                    <div><span style="color:#6b7280;">Currency</span><br><strong>${currency.name} (${currency.symbol})</strong></div>
+                    <div><span style="color:#6b7280;">Language</span><br><strong>${lang}</strong></div>
+                </div>`;
+        } catch (err) {
+            container.innerHTML = '<p style="color:#ef4444;">Could not load country info. Please check your connection.</p>';
+        }
+    }
+
+    // Run once on page load — no user interaction needed
+    loadCountryInfo();
+
+
+    // ═════════════════════════════════════════════════════════════════
+    // API 2 — DYNAMIC HTML + JAVASCRIPT API: Open-Meteo Weather
+    // ─────────────────────────────────────────────────────────────────
+    // Triggered when the user clicks "Check Weather at Destination".
+    // Step 1: Reads the destination the user typed into #plan-destination.
+    // Step 2: Calls the Open-Meteo Geocoding API to convert the city/country
+    //         name into latitude and longitude coordinates.
+    // Step 3: Uses those coordinates to call the Open-Meteo Forecast API
+    //         and retrieves the current temperature and weather code.
+    // Step 4: Displays the result dynamically in #weather-result.
+    //
+    // This is Dynamic because the response changes based on user input
+    // and real-time meteorological data from a 3rd-party server.
+    // External service: https://open-meteo.com/
+    // No API key required — Open-Meteo is free and open.
+    // ═════════════════════════════════════════════════════════════════
+    const weatherBtn    = document.getElementById('weather-btn');
+    const weatherResult = document.getElementById('weather-result');
+
+    // Maps WMO weather codes to human-readable labels and emojis
+    function describeWeather(code) {
+        if (code === 0)              return '☀️ Clear sky';
+        if (code <= 3)               return '⛅ Partly cloudy';
+        if (code <= 49)              return '🌫️ Foggy';
+        if (code <= 69)              return '🌧️ Rainy';
+        if (code <= 79)              return '❄️ Snowy';
+        if (code <= 99)              return '⛈️ Thunderstorm';
+        return '🌡️ Unknown conditions';
+    }
+
+    if (weatherBtn) {
+        weatherBtn.addEventListener('click', async () => {
+            const destination = document.getElementById('plan-destination').value.trim();
+            if (!destination) {
+                alert('Please enter a destination country or city first.');
+                return;
+            }
+
+            weatherResult.style.display = 'block';
+            weatherResult.innerHTML     = '⏳ Fetching weather data...';
+
+            try {
+                // Step 1 — Geocode the user's text input into coordinates
+                const geoRes  = await fetch(
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(destination)}&count=1&language=en&format=json`
+                );
+                const geoData = await geoRes.json();
+
+                if (!geoData.results || geoData.results.length === 0) {
+                    weatherResult.innerHTML = '❌ Location not found. Try a more specific city name.';
+                    return;
+                }
+
+                const { latitude, longitude, name, country } = geoData.results[0];
+
+                // Step 2 — Fetch current weather for those coordinates
+                const wxRes  = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`
+                );
+                const wxData = await wxRes.json();
+                const wx     = wxData.current_weather;
+
+                // Step 3 — Render the result into the page
+                weatherResult.innerHTML = `
+                    <strong>📍 ${name}, ${country}</strong><br>
+                    🌡️ Temperature: <strong>${wx.temperature}°C</strong><br>
+                    💨 Wind speed: <strong>${wx.windspeed} km/h</strong><br>
+                    ${describeWeather(wx.weathercode)}
+                `;
+            } catch (err) {
+                weatherResult.innerHTML = '❌ Could not fetch weather. Please try again.';
+            }
+        });
+    }
+
+
+    // ═════════════════════════════════════════════════════════════════
+    // API 3 — DATABASE-CONNECTED API: Hipolabs Universities
+    // ─────────────────────────────────────────────────────────────────
+    // Triggered when the user clicks "Search Universities".
+    // Step 1: Reads the destination country from #plan-destination.
+    // Step 2: Sends a GET request to the Hipolabs Universities API,
+    //         which returns a list of universities in that country.
+    // Step 3: Populates a <select> dropdown with the results so the
+    //         user can choose one.
+    // Step 4: Selecting a university from the dropdown fills the
+    //         #plan-university text field automatically.
+    // Step 5: When the form is submitted, that university name (fetched
+    //         from the 3rd-party API) is sent to plans.php and saved
+    //         to the PostgreSQL database along with the destination and date.
+    //
+    // This satisfies the "API connected to a database" requirement:
+    // data originates from a 3rd-party server and is persisted in the DB.
+    // External service: http://universities.hipolabs.com/search?country={name}
+    // No API key required — the service is public and free.
+    // ═════════════════════════════════════════════════════════════════
+    const uniSearchBtn = document.getElementById('uni-search-btn');
+    const uniDropdown  = document.getElementById('uni-dropdown');
+    const uniStatus    = document.getElementById('uni-status');
+    const uniInput     = document.getElementById('plan-university');
+
+    if (uniSearchBtn) {
+        uniSearchBtn.addEventListener('click', async () => {
+            const country = document.getElementById('plan-destination').value.trim();
+            if (!country) {
+                alert('Please enter a destination country first.');
+                return;
+            }
+
+            uniStatus.style.display  = 'block';
+            uniStatus.textContent    = '⏳ Searching universities...';
+            uniDropdown.style.display = 'none';
+
+            try {
+                // Fetch universities from the Hipolabs API for the given country
+                const res  = await fetch(
+                    `https://universities.hipolabs.com/search?country=${encodeURIComponent(country)}`
+                );
+                const data = await res.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    uniStatus.textContent = `No universities found for "${country}". Try the full country name in English (e.g. "Germany", "Japan").`;
+                    return;
+                }
+
+                // Populate the dropdown with university names from the API
+                uniDropdown.innerHTML = '<option value="">— Select a university —</option>';
+                data.forEach(uni => {
+                    const opt   = document.createElement('option');
+                    opt.value   = uni.name;
+                    opt.textContent = uni.name;
+                    uniDropdown.appendChild(opt);
+                });
+
+                uniDropdown.style.display = 'block';
+                uniStatus.textContent = ` Found ${data.length} universities. Select one to fill the field.`;
+
+            } catch (err) {
+                uniStatus.textContent = ' Could not reach the universities API. Please try again.';
+            }
+        });
+    }
+
+    // When the user selects a university, copy it into the text input
+    // so it gets included in the form submission and saved to the database
+    if (uniDropdown) {
+        uniDropdown.addEventListener('change', () => {
+            if (uniDropdown.value && uniInput) {
+                uniInput.value = uniDropdown.value;
+            }
+        });
+    }
+
 });
