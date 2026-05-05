@@ -1,332 +1,485 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. AUTH LOGIC ---
-    const authBtn = document.getElementById('auth-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const userGreeting = document.getElementById('user-greeting');
-    const loginModal = document.getElementById('login-modal');
-    const closeModal = document.querySelector('.close-modal');
-    const loginForm = document.getElementById('login-form');
 
-    // Profile Elements
-    const profileName = document.getElementById('profile-name');
-    const profileStatus = document.getElementById('profile-status');
-    const profileInputName = document.getElementById('profile-input-name');
+    // ─────────────────────────────────────────────
+    // 1. ELEMENT REFERENCES
+    // ─────────────────────────────────────────────
+    const authBtn          = document.getElementById('auth-btn');
+    const logoutBtn        = document.getElementById('logout-btn');
+    const userGreeting     = document.getElementById('user-greeting');
+    const loginModal       = document.getElementById('login-modal');
+    const closeModal       = document.querySelector('.close-modal');
+    const loginForm        = document.getElementById('login-form');
+    const registerForm     = document.getElementById('register-form');
+    const profileName      = document.getElementById('profile-name');
+    const profileStatus    = document.getElementById('profile-status');
+    const profileInputName  = document.getElementById('profile-input-name');
     const profileInputEmail = document.getElementById('profile-input-email');
+    const dangerZone       = document.getElementById('danger-zone');
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
 
-    let isLoggedIn = false;
-    let currentUserRole = 'user';
+    let isLoggedIn  = false;
+    let currentUser = null;
 
-    // Open Modal
-    if (authBtn) {
-        authBtn.addEventListener('click', () => {
-            if (!isLoggedIn) {
-                loginModal.classList.remove('hidden');
-            }
-        });
-    }
+    // ─────────────────────────────────────────────
+    // 2. MODAL OPEN / CLOSE
+    // ─────────────────────────────────────────────
+    authBtn.addEventListener('click', () => loginModal.classList.remove('hidden'));
+    closeModal.addEventListener('click', () => loginModal.classList.add('hidden'));
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) loginModal.classList.add('hidden');
+    });
 
-    // Close Modal
-    if (closeModal) {
-        closeModal.addEventListener('click', () => {
-            loginModal.classList.add('hidden');
-        });
-    }
+    // ─────────────────────────────────────────────
+    // 3. LOGIN
+    // ─────────────────────────────────────────────
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
 
-    // Handle Login Submit
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const emailInput = document.getElementById('login-email').value;
-            const passwordInput = document.getElementById('login-password').value;
-
-            const formData = new FormData();
-            formData.append('email', emailInput);
-            formData.append('password', passwordInput);
-
-            try {
-                const response = await fetch('auth.php?action=login', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.status === 'success') {
-                    isLoggedIn = true;
-                    currentUserRole = data.role || 'user';
-                    loginModal.classList.add('hidden');
-                    loginForm.reset();
-
-                    userGreeting.textContent = `Welcome, ${data.name || emailInput}`;
-                    authBtn.classList.add('hidden');
-                    logoutBtn.classList.remove('hidden');
-
-                    profileName.textContent = data.name || emailInput;
-                    profileStatus.textContent = currentUserRole.toUpperCase();
-                    profileInputName.value = data.name || '';
-                    profileInputEmail.value = emailInput;
-
-                    alert("Login successful!");
-                    switchView('dashboard-view');
-                } else {
-                    alert("Error: " + (data.message || "Invalid credentials. Please try again."));
-                }
-            } catch (err) {
-                console.error("Login error:", err);
-                alert("Server connection failed. Make sure your backend is uploaded properly.");
-            }
-        });
-    }
-
-    // Handle Registration
-    const modalRegisterBtn = document.getElementById('modal-register-btn');
-    if (modalRegisterBtn) {
-        modalRegisterBtn.addEventListener('click', async () => {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const name = prompt("Please enter your name for registration:");
-
-            if (!name || !email || !password) {
-                alert("Name, email, and password are all required to register!");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('password', password);
-
-            try {
-                const response = await fetch('auth.php?action=register', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.status === 'success') {
-                    alert(data.message);
-                    loginForm.reset();
-                } else {
-                    alert("Error: " + (data.message || "User already exists or invalid data."));
-                }
-            } catch (err) {
-                console.error("Registration error:", err);
-                alert("Could not connect to the database/server.");
-            }
-        });
-    }
-
-    // Handle Logout
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            isLoggedIn = false;
-            userGreeting.textContent = "Welcome, Guest";
-            authBtn.classList.remove('hidden');
-            logoutBtn.classList.add('hidden');
-            
-            profileName.textContent = "Guest User";
-            profileStatus.textContent = "Not Logged In";
-            profileInputName.value = "Guest User";
-            profileInputEmail.value = "guest@example.com";
-            
-            alert("You have been logged out.");
-            switchView('dashboard-view');
-        });
-    }
-
-    // Handle Profile Deletion
-    const deleteProfileBtn = document.getElementById('delete-profile-btn');
-    if (deleteProfileBtn) {
-        deleteProfileBtn.addEventListener('click', async () => {
-            if (confirm("WARNING: This action is permanent and will delete all associated data.")) {
-                try {
-                    const response = await fetch('auth.php?action=delete', {
-                        method: 'POST'
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok && data.status === 'success') {
-                        alert(data.message);
-                        logoutBtn.click();
-                    } else {
-                        alert("Failed to delete profile: " + data.message);
-                    }
-                } catch (err) {
-                    console.error("Error:", err);
-                    alert("Server connection failed.");
-                }
-            }
-        });
-    }
-
-    // --- 2. CREATE PLAN LOGIC ---
-    const planForm = document.getElementById('plan-form');
-    const savePlanBtn = document.getElementById('save-plan-btn');
-
-    if (savePlanBtn && planForm) {
-        savePlanBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            const destination = document.getElementById('destination').value;
-            const university = document.getElementById('university').value;
-            const startDate = document.getElementById('start-date').value;
-
-            if (!destination || !university) {
-                alert("Please fill in all required fields (Destination, University).");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('destination', destination);
-            formData.append('university', university);
-            formData.append('start_date', startDate);
-
-            try {
-                const response = await fetch('plans.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-
-                if (response.ok && data.status === 'success') {
-                    alert(data.message);
-                    planForm.reset();
-                    switchView('dashboard-view');
-                } else {
-                    alert("Error: " + (data.message || "Failed to save plan."));
-                }
-            } catch (err) {
-                console.error("Error writing plan:", err);
-                alert("Connection failed. Check if you are logged in.");
-            }
-        });
-    }
-
-    // --- 3. CRUD SEARCH LOGIC ---
-    // Function to search plans (can be attached to a search bar)
-    async function searchPlans(query = '') {
         try {
-            const response = await fetch(`plans.php?search=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            
-            console.log("Search Results: ", data);
-            // Print the corresponding info to the page (e.g. to a list element)
-            return data;
-        } catch (err) {
-            console.error("Failed to search database:", err);
-        }
-    }
-    window.searchPlans = searchPlans;
+            const res  = await fetch('auth.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'login', email, password })
+            });
+            const data = await res.json();
 
-    // --- 4. NAVIGATION / SPA LOGIC ---
-    const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+            if (res.ok) {
+                loginModal.classList.add('hidden');
+                loginForm.reset();
+                setLoggedIn(data.user);
+            } else {
+                alert(data.error || 'Invalid credentials. Please try again.');
+            }
+        } catch (err) {
+            alert('Could not reach the server. Please try again.');
+        }
+    });
+
+    // ─────────────────────────────────────────────
+    // 4. REGISTER
+    // ─────────────────────────────────────────────
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name     = document.getElementById('register-name').value.trim();
+            const email    = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const res  = await fetch('auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'register', name, email, password })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    loginModal.classList.add('hidden');
+                    registerForm.reset();
+                    setLoggedIn(data.user);
+                    alert('Welcome, ' + data.user.name + '! Your account has been created.');
+                } else {
+                    alert(data.error || 'Registration failed. Please try again.');
+                }
+            } catch (err) {
+                alert('Could not reach the server. Please try again.');
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    // 5. LOGOUT
+    // ─────────────────────────────────────────────
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await fetch('auth.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'logout' })
+            });
+        } catch (err) { /* session will expire naturally */ }
+
+        setLoggedOut();
+        switchView('dashboard-view');
+    });
+
+    // ─────────────────────────────────────────────
+    // 6. DELETE ACCOUNT
+    // ─────────────────────────────────────────────
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', async () => {
+            if (!confirm('This will permanently delete your account and ALL your plans. This cannot be undone. Are you sure?')) return;
+
+            try {
+                const res  = await fetch('auth.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_account' })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Your account has been deleted.');
+                    setLoggedOut();
+                    switchView('dashboard-view');
+                } else {
+                    alert(data.error || 'Could not delete account.');
+                }
+            } catch (err) {
+                alert('Could not reach the server.');
+            }
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    // 7. RESTORE SESSION ON PAGE LOAD
+    // ─────────────────────────────────────────────
+    async function checkSession() {
+        try {
+            const res = await fetch('auth.php?action=me');
+            if (res.ok) {
+                const data = await res.json();
+                setLoggedIn(data.user);
+            }
+        } catch (err) { /* no active session */ }
+    }
+    checkSession();
+
+    // ─────────────────────────────────────────────
+    // 8. UI STATE HELPERS
+    // ─────────────────────────────────────────────
+    function setLoggedIn(user) {
+        isLoggedIn  = true;
+        currentUser = user;
+
+        userGreeting.textContent = 'Welcome, ' + user.name.split(' ')[0];
+        authBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+
+        profileName.textContent   = user.name;
+        profileStatus.textContent = 'Active Student';
+        profileStatus.style.background = '#10b981';
+        profileStatus.style.color      = 'white';
+        profileInputName.value  = user.name;
+        profileInputEmail.value = user.email;
+
+        if (dangerZone) dangerZone.classList.remove('hidden');
+        loadPlans();
+    }
+
+    function setLoggedOut() {
+        isLoggedIn  = false;
+        currentUser = null;
+
+        userGreeting.textContent = 'Welcome, Guest';
+        authBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+
+        profileName.textContent   = 'Guest User';
+        profileStatus.textContent = 'Not Logged In';
+        profileStatus.style.background = '';
+        profileStatus.style.color      = '';
+        profileInputName.value  = 'Guest User';
+        profileInputEmail.value = 'guest@example.com';
+
+        if (dangerZone) dangerZone.classList.add('hidden');
+
+        const plansList = document.getElementById('plans-list');
+        if (plansList) plansList.innerHTML = '<p>Please log in to see your plans.</p>';
+    }
+
+    // ─────────────────────────────────────────────
+    // 9. NAVIGATION
+    // ─────────────────────────────────────────────
+    const navItems     = document.querySelectorAll('.nav-item[data-target]');
     const viewSections = document.querySelectorAll('.view-section');
 
     function switchView(targetId) {
-        navItems.forEach(item => {
-            if (item.getAttribute('data-target') === targetId) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
-        });
-
-        viewSections.forEach(section => {
-            if (section.id === targetId) {
-                section.classList.add('active');
-            } else {
-                section.classList.remove('active');
-            }
-        });
-        
+        navItems.forEach(item =>
+            item.classList.toggle('active', item.getAttribute('data-target') === targetId)
+        );
+        viewSections.forEach(section =>
+            section.classList.toggle('active', section.id === targetId)
+        );
         document.querySelector('.main-content').scrollTop = 0;
+        if (targetId === 'plan-view' && isLoggedIn) loadPlans();
     }
-    
+
+    navItems.forEach(item =>
+        item.addEventListener('click', () => switchView(item.getAttribute('data-target')))
+    );
     window.switchView = switchView;
 
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const target = item.getAttribute('data-target');
-            switchView(target);
-        });
+    // ─────────────────────────────────────────────
+    // 10. ACCESSIBILITY CONTROLS
+    // ─────────────────────────────────────────────
+    const themeBtn           = document.getElementById('theme-toggle');
+    const fontBtn            = document.getElementById('font-size-toggle');
+    const deadlineBtn        = document.getElementById('deadline-toggle');
+    const deadlinesContainer = document.getElementById('deadlines');
+
+    themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        themeBtn.textContent = document.body.classList.contains('dark-mode') ? 'Light Mode' : 'Dark Mode';
     });
 
-    // Load tasks if available
-    const taskList = document.getElementById('task-list');
-    const newTaskInput = document.getElementById('new-task-input');
-    const addTaskBtn = document.getElementById('add-task-btn');
-    const filterBtns = document.querySelectorAll('.filter-btn');
+    const fontSizes = [16, 18, 20];
+    let fontStep = 0;
+    fontBtn.addEventListener('click', () => {
+        fontStep = (fontStep + 1) % fontSizes.length;
+        document.documentElement.style.setProperty('--font-base', fontSizes[fontStep] + 'px');
+        document.body.style.fontSize = fontSizes[fontStep] + 'px';
+        fontBtn.textContent = 'Text Size: ' + fontSizes[fontStep] + 'px';
+    });
+
+    deadlineBtn.addEventListener('click', () => {
+        const isHidden = deadlinesContainer.classList.toggle('hidden');
+        deadlineBtn.textContent = isHidden ? 'Show Deadlines' : 'Hide Deadlines';
+    });
+
+    // ─────────────────────────────────────────────
+    // 11. CALENDAR
+    // ─────────────────────────────────────────────
+    const calendarDays     = document.getElementById('calendar-days');
+    const currentMonthYear = document.getElementById('current-month-year');
+    const prevMonthBtn     = document.getElementById('prev-month');
+    const nextMonthBtn     = document.getElementById('next-month');
+
+    let calDate = new Date();
+    const today = new Date();
+    const demoDeadlines = [
+        { month: 5,  day: 15, label: 'Visa Application' },
+        { month: 6,  day: 1,  label: 'Housing Deposit'  },
+        { month: 7,  day: 10, label: 'Flight Booking'   }
+    ];
+
+    function renderCalendar() {
+        const year  = calDate.getFullYear();
+        const month = calDate.getMonth();
+        currentMonthYear.textContent =
+            calDate.toLocaleString('default', { month: 'long' }) + ' ' + year;
+        calendarDays.innerHTML = '';
+
+        const firstDay    = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+            const empty = document.createElement('div');
+            empty.classList.add('cal-day', 'empty');
+            calendarDays.appendChild(empty);
+        }
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.classList.add('cal-day');
+            dayDiv.textContent = day;
+            if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear())
+                dayDiv.classList.add('today');
+            const dl = demoDeadlines.find(d => d.month === month + 1 && d.day === day);
+            if (dl) {
+                dayDiv.classList.add('deadline');
+                dayDiv.title = dl.label;
+                dayDiv.addEventListener('click', () => alert('Deadline: ' + dl.label));
+            }
+            calendarDays.appendChild(dayDiv);
+        }
+    }
+
+    prevMonthBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() - 1); renderCalendar(); });
+    nextMonthBtn.addEventListener('click', () => { calDate.setMonth(calDate.getMonth() + 1); renderCalendar(); });
+    renderCalendar();
+
+    // ─────────────────────────────────────────────
+    // 12. PLANS CRUD
+    // ─────────────────────────────────────────────
+    const planForm    = document.getElementById('plan-form');
+    const savePlanBtn = document.getElementById('save-plan-btn');
+    const plansList   = document.getElementById('plans-list');
+    const searchInput = document.getElementById('plan-search');
+    const searchBtn   = document.getElementById('plan-search-btn');
+
+    async function savePlan(e) {
+        e.preventDefault();
+        if (!isLoggedIn) {
+            alert('You must be logged in to save a plan.');
+            loginModal.classList.remove('hidden');
+            return;
+        }
+        const destination = document.getElementById('plan-destination') ? document.getElementById('plan-destination').value.trim() : '';
+        const university  = document.getElementById('plan-university')  ? document.getElementById('plan-university').value.trim()  : '';
+        const startDate   = document.getElementById('plan-start-date')  ? document.getElementById('plan-start-date').value          : '';
+
+        if (!destination || !university || !startDate) {
+            alert('Please fill in Destination, University, and Start Date.');
+            return;
+        }
+        try {
+            const res  = await fetch('plans.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ destination, university, start_date: startDate })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Plan saved successfully!');
+                planForm.reset();
+                loadPlans();
+            } else {
+                const msg = data.errors ? Object.values(data.errors).join('\n') : (data.error || 'Failed to save plan.');
+                alert(msg);
+            }
+        } catch (err) { alert('Could not reach the server.'); }
+    }
+
+    planForm.addEventListener('submit', savePlan);
+    savePlanBtn.addEventListener('click', () => planForm.dispatchEvent(new Event('submit')));
+
+    async function loadPlans() {
+        if (!plansList) return;
+        if (!isLoggedIn) { plansList.innerHTML = '<p>Please log in to see your plans.</p>'; return; }
+        try {
+            const res  = await fetch('plans.php');
+            const data = await res.json();
+            renderPlansList(data.plans || []);
+        } catch (err) { plansList.innerHTML = '<p>Could not load plans.</p>'; }
+    }
+
+    function renderPlansList(plans) {
+        if (!plansList) return;
+        if (plans.length === 0) {
+            plansList.innerHTML = '<p style="color:#6b7280;">No plans yet. Fill in the form above to create your first one!</p>';
+            return;
+        }
+        plansList.innerHTML = plans.map(plan =>
+            '<div class="task-item" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
+            '<div><strong>' + escapeHtml(plan.destination) + '</strong> — ' + escapeHtml(plan.university) +
+            '<span class="task-date" style="margin-left:0.75rem;">📅 ' + plan.start_date + '</span></div>' +
+            '<button onclick="deletePlan(' + plan.id + ')" class="delete-task-btn" title="Delete plan">&times;</button>' +
+            '</div>'
+        ).join('');
+    }
+
+    window.deletePlan = async function(id) {
+        if (!confirm('Delete this plan?')) return;
+        try {
+            const res  = await fetch('plans.php?id=' + id, { method: 'DELETE' });
+            const data = await res.json();
+            if (res.ok) loadPlans();
+            else alert(data.error || 'Failed to delete plan.');
+        } catch (err) { alert('Could not reach the server.'); }
+    };
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', async () => {
+            const term = searchInput ? searchInput.value.trim() : '';
+            if (!term) { loadPlans(); return; }
+            try {
+                const res  = await fetch('plans.php?search=' + encodeURIComponent(term));
+                const data = await res.json();
+                renderPlansList(data.plans || []);
+                if ((data.plans || []).length === 0 && plansList)
+                    plansList.innerHTML = '<p>No plans found matching "<strong>' + escapeHtml(term) + '</strong>".</p>';
+            } catch (err) { alert('Search failed.'); }
+        });
+    }
+
+    // ─────────────────────────────────────────────
+    // 13. TASKS (localStorage)
+    // ─────────────────────────────────────────────
+    const taskListEl       = document.getElementById('task-list');
+    const newTaskInput     = document.getElementById('new-task-input');
+    const addTaskBtn       = document.getElementById('add-task-btn');
+    const filterBtns       = document.querySelectorAll('.filter-btn');
     const completedCountEl = document.getElementById('completed-count');
-    const totalCountEl = document.getElementById('total-count');
-    
+    const totalCountEl     = document.getElementById('total-count');
+
     let tasks = [];
     let currentFilter = 'all';
 
     function loadTasks() {
-        const savedTasks = localStorage.getItem('globePlannerTasks');
-        if (savedTasks) {
-            tasks = JSON.parse(savedTasks);
-            renderTasks();
-        } else {
-            tasks = [
-                { id: 1, text: 'Apply for student visa', completed: false, createdAt: new Date().toISOString() }
-            ];
-            saveTasks();
-            renderTasks();
-        }
-    }
-
-    function saveTasks() {
-        localStorage.setItem('globePlannerTasks', JSON.stringify(tasks));
+        const saved = localStorage.getItem('globePlannerTasks');
+        tasks = saved ? JSON.parse(saved) : [
+            { id: 1, text: 'Apply for student visa', completed: false, createdAt: new Date().toISOString() },
+            { id: 2, text: 'Book accommodation',      completed: false, createdAt: new Date().toISOString() },
+            { id: 3, text: 'Register for courses',    completed: true,  createdAt: new Date().toISOString() }
+        ];
+        if (!saved) localStorage.setItem('globePlannerTasks', JSON.stringify(tasks));
+        renderTasks();
     }
 
     function addTask() {
         const text = newTaskInput.value.trim();
-        if (text === '') return;
+        if (!text) { alert('Please enter a task.'); return; }
         tasks.unshift({ id: Date.now(), text, completed: false, createdAt: new Date().toISOString() });
-        saveTasks();
+        localStorage.setItem('globePlannerTasks', JSON.stringify(tasks));
         renderTasks();
         newTaskInput.value = '';
-    }
-
-    function deleteTask(id) {
-        tasks = tasks.filter(t => t.id !== id);
-        saveTasks();
-        renderTasks();
+        newTaskInput.focus();
     }
 
     function toggleTask(id) {
-        const task = tasks.find(t => t.id === id);
-        if (task) {
-            task.completed = !task.completed;
-            saveTasks();
-            renderTasks();
-        }
+        const t = tasks.find(t => t.id === id);
+        if (t) { t.completed = !t.completed; localStorage.setItem('globePlannerTasks', JSON.stringify(tasks)); renderTasks(); }
+    }
+
+    function deleteTask(id) {
+        if (!confirm('Delete this task?')) return;
+        tasks = tasks.filter(t => t.id !== id);
+        localStorage.setItem('globePlannerTasks', JSON.stringify(tasks));
+        renderTasks();
     }
 
     function renderTasks() {
-        if (!taskList) return;
-        taskList.innerHTML = '';
-        let f = tasks.filter(t => currentFilter === 'all' || (currentFilter === 'active' && !t.completed) || (currentFilter === 'completed' && t.completed));
+        let filtered = tasks;
+        if (currentFilter === 'active')    filtered = tasks.filter(t => !t.completed);
+        if (currentFilter === 'completed') filtered = tasks.filter(t =>  t.completed);
 
-        if (f.length === 0) taskList: taskList
-        f.forEach(task => {
-            const taskEl = document.createElement('div');
-            taskEl.className = `task-item ${task.completed ? 'completed' : ''}`;
-            taskEl.innerHTML = `
-                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                <span class="task-text">${task.text}</span>
-                <button class="delete-task-btn">&times;</button>
-            `;
-            taskEl.querySelector('.task-checkbox').addEventListener('change', () => toggleTask(task.id));
-            taskEl.querySelector('.delete-task-btn').addEventListener('click', () => deleteTask(task.id));
-            taskList.appendChild(taskEl);
-        });
+        taskListEl.innerHTML = '';
+        if (filtered.length === 0) {
+            taskListEl.innerHTML = '<div class="task-empty"><div class="task-empty-icon">📋</div><p>No tasks found</p></div>';
+        } else {
+            filtered.forEach(task => {
+                const el  = document.createElement('div');
+                el.className = 'task-item' + (task.completed ? ' completed' : '');
+
+                const cb  = document.createElement('input');
+                cb.type = 'checkbox'; cb.className = 'task-checkbox'; cb.checked = task.completed;
+                cb.addEventListener('change', () => toggleTask(task.id));
+
+                const txt = document.createElement('span');
+                txt.className = 'task-text'; txt.textContent = task.text;
+
+                const dt  = document.createElement('span');
+                dt.className = 'task-date';
+                dt.textContent = new Date(task.createdAt).toLocaleDateString();
+
+                const del = document.createElement('button');
+                del.className = 'delete-task-btn'; del.innerHTML = '&times;'; del.title = 'Delete task';
+                del.addEventListener('click', () => deleteTask(task.id));
+
+                el.append(cb, txt, dt, del);
+                taskListEl.appendChild(el);
+            });
+        }
+        completedCountEl.textContent = tasks.filter(t => t.completed).length;
+        totalCountEl.textContent     = tasks.length;
     }
 
-    if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
+    addTaskBtn.addEventListener('click', addTask);
+    newTaskInput.addEventListener('keypress', e => { if (e.key === 'Enter') addTask(); });
+    filterBtns.forEach(b => b.addEventListener('click', () => {
+        currentFilter = b.dataset.filter;
+        filterBtns.forEach(x => x.classList.toggle('active', x.dataset.filter === currentFilter));
+        renderTasks();
+    }));
+
     loadTasks();
+
+    // ─────────────────────────────────────────────
+    // 14. UTILITY
+    // ─────────────────────────────────────────────
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 });
