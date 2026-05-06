@@ -2,7 +2,11 @@
 require_once __DIR__ . '/db.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// Do NOT use wildcard '*' for Allow-Origin when requests include credentials (cookies).
+// Using the request's own origin allows session cookies to work correctly.
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
