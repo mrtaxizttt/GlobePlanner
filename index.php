@@ -97,23 +97,23 @@
                     <article class="card destination-card" id="destination-card">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <h3>Current Destination</h3>
-                            <button id="edit-destination-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:3px 10px;">✏️ Edit</button>
+                            <button id="edit-destination-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.75rem; padding:3px 10px;">✏️ Edit</button>
                         </div>
                         <!-- Display mode -->
                         <div id="destination-display">
                             <p id="dest-university-text" style="font-weight:600; margin-bottom:0.3rem;">Sungkyunwan University</p>
-                            <p id="dest-country-text" style="color:#94a3b8; font-size:0.9rem; margin-bottom:0.6rem;">South Korea</p>
+                            <p id="dest-country-text" style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:0.6rem;">South Korea</p>
                             <span class="tag" id="dest-tag1">Bilateral</span>
                             <span class="tag" id="dest-tag2">Fall 2026</span>
                         </div>
                         <!-- Edit mode (hidden by default) -->
                         <div id="destination-edit" style="display:none; margin-top:0.75rem;">
-                            <input id="edit-university" type="text" placeholder="University name" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
-                            <input id="edit-country" type="text" placeholder="Country" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
-                            <input id="edit-tag1" type="text" placeholder="Tag 1 (e.g. Bilateral)" style="width:48%; margin-right:4%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
-                            <input id="edit-tag2" type="text" placeholder="Tag 2 (e.g. Fall 2026)" style="width:48%; margin-bottom:0.75rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-university" type="text" placeholder="University name" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-country" type="text" placeholder="Country" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-tag1" type="text" placeholder="Tag 1 (e.g. Bilateral)" style="width:48%; margin-right:4%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
+                            <input id="edit-tag2" type="text" placeholder="Tag 2 (e.g. Fall 2026)" style="width:48%; margin-bottom:0.75rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
                             <button id="save-destination-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.35rem 0.9rem;">Save</button>
-                            <button id="cancel-destination-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                            <button id="cancel-destination-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
                         </div>
                     </article>
 
@@ -121,14 +121,14 @@
                     <article class="card courses-card">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                             <h3>Selected Courses</h3>
-                            <button id="add-course-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:3px 10px;">+ Add</button>
+                            <button id="add-course-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.75rem; padding:3px 10px;">+ Add</button>
                         </div>
                         <ul class="course-list" id="course-list-ul"></ul>
                         <!-- Add course input (hidden by default) -->
                         <div id="course-add-row" style="display:none; margin-top:0.75rem; display:none;">
-                            <input id="new-course-input" type="text" placeholder="e.g. Machine Learning (6 ECTS)" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                            <input id="new-course-input" type="text" placeholder="e.g. Machine Learning (6 ECTS)" style="width:100%; margin-bottom:0.5rem; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
                             <button id="save-course-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.35rem 0.9rem;">Add Course</button>
-                            <button id="cancel-course-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                            <button id="cancel-course-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.8rem; padding:0.35rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
                         </div>
                     </article>
                 </div>
@@ -150,23 +150,23 @@
                 <article id="deadlines" class="deadlines-section visible">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
                         <h3 style="margin:0;">Important Deadlines</h3>
-                        <button id="show-add-deadline-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.75rem; padding:4px 12px;">+ Add Deadline</button>
+                        <button id="show-add-deadline-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.75rem; padding:4px 12px;">+ Add Deadline</button>
                     </div>
 
                     <!-- Add Deadline Form (hidden by default) -->
-                    <div id="add-deadline-form" style="display:none; background:#1e2a3a; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+                    <div id="add-deadline-form" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1rem;">
                         <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
                             <div style="flex:2; min-width:140px;">
-                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Task</label>
-                                <input id="dl-task" type="text" placeholder="e.g. Submit Learning Agreement" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                                <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Task</label>
+                                <input id="dl-task" type="text" placeholder="e.g. Submit Learning Agreement" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
                             </div>
                             <div style="flex:1; min-width:120px;">
-                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Date</label>
-                                <input id="dl-date" type="date" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                                <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Date</label>
+                                <input id="dl-date" type="date" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
                             </div>
                             <div style="flex:1; min-width:110px;">
-                                <label style="font-size:0.8rem; color:#94a3b8; display:block; margin-bottom:4px;">Status</label>
-                                <select id="dl-status" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid #334155; background:#0f172a; color:inherit; font-size:0.875rem; box-sizing:border-box;">
+                                <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Status</label>
+                                <select id="dl-status" style="width:100%; padding:0.4rem 0.6rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.875rem; box-sizing:border-box;">
                                     <option value="urgent">Urgent</option>
                                     <option value="pending">Pending</option>
                                     <option value="upcoming" selected>Upcoming</option>
@@ -174,7 +174,7 @@
                             </div>
                             <div>
                                 <button id="save-deadline-btn" class="add-task-btn" style="font-size:0.8rem; padding:0.4rem 1rem;">Save</button>
-                                <button id="cancel-deadline-btn" class="tag" style="cursor:pointer; background:#334155; border:none; color:#94a3b8; font-size:0.8rem; padding:0.4rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
+                                <button id="cancel-deadline-btn" class="tag" style="cursor:pointer; background:var(--border); border:none; color:var(--text-secondary); font-size:0.8rem; padding:0.4rem 0.9rem; border-radius:8px; margin-left:0.5rem;">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -289,7 +289,7 @@
                                 <button type="button" id="weather-btn" class="ctrl-btn" style="margin-bottom:0.5rem;">
                                     🌤 Check Weather at Destination
                                 </button>
-                                <div id="weather-result" style="display:none; background:var(--card-bg,#1e2235); border-radius:12px; padding:0.85rem 1rem; margin-top:0.5rem; font-size:0.9rem;"></div>
+                                <div id="weather-result" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:0.85rem 1rem; margin-top:0.5rem; font-size:0.9rem; color:var(--text-primary);"></div>
                             </div>
 
                             <!-- ═══════════════════════════════════════════════════════
@@ -310,7 +310,7 @@
                                     <button type="button" id="uni-search-btn" class="ctrl-btn">🔍 Search Universities</button>
                                 </div>
                                 <!-- Dropdown populated by the Hipolabs API -->
-                                <select id="uni-dropdown" style="display:none; width:100%; padding:0.5rem; border-radius:8px; border:1px solid #334155; background:var(--card-bg,#1e2235); color:inherit; font-size:0.9rem;">
+                                <select id="uni-dropdown" style="display:none; width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-app); color:var(--text-primary); font-size:0.9rem;">
                                     <option value="">— Select a university —</option>
                                 </select>
                                 <p id="uni-status" style="font-size:0.8rem; color:#6b7280; margin-top:0.3rem; display:none;"></p>
@@ -405,7 +405,7 @@
                                     <option>Daily</option>
                                 </select>
                             </div>
-                            <div class="form-group" style="margin-top:1rem; border-top:1px solid #334155; padding-top:1rem;">
+                            <div class="form-group" style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
                                 <label style="display:block; margin-bottom:0.4rem;">Send Deadline Reminders Now</label>
                                 <p style="font-size:0.8rem; color:#6b7280; margin-bottom:0.75rem;">
                                     Sends an email to your account address with all your current deadlines.
