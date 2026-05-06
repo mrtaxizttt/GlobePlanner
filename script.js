@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let isLoggedIn  = false;
     let currentUser = null;
 
+    // Declared early so they are available when checkSession/setLoggedIn runs on page load
+    const planForm    = document.getElementById('plan-form');
+    const plansList   = document.getElementById('plans-list');
+    const savePlanBtn = document.getElementById('save-plan-btn');
+    const searchInput = document.getElementById('plan-search');
+    const searchBtn   = document.getElementById('plan-search-btn');
+    // calDate declared early so renderCalendar() called from renderDeadlines() works
+    let calDate = new Date();
+
     // ─────────────────────────────────────────────
     // 2. MODAL OPEN / CLOSE
     // ─────────────────────────────────────────────
@@ -41,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const res  = await fetch('auth.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ action: 'login', email, password })
             });
             const data = await res.json();
@@ -98,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             await fetch('auth.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ action: 'logout' })
             });
         } catch (err) { /* session will expire naturally */ }
@@ -140,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     async function checkSession() {
         try {
-            const res = await fetch('auth.php?action=me', { credentials: 'include' });
+            const res = await fetch('auth.php?action=me');
             if (res.ok) {
                 const data = await res.json();
                 setLoggedIn(data.user);
@@ -187,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
         profileInputEmail.value = 'guest@example.com';
 
         if (dangerZone) dangerZone.classList.add('hidden');
-        const plansList = document.getElementById('plans-list');
         if (plansList) plansList.innerHTML = '<p>Please log in to see your plans.</p>';
     }
 
@@ -471,8 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     // 11. CALENDAR — with deadline date highlighting
     // ─────────────────────────────────────────────
-    let calDate = new Date();
-
     function renderCalendar() {
         const monthYearEl = document.getElementById('current-month-year');
         const daysEl      = document.getElementById('calendar-days');
@@ -514,11 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─────────────────────────────────────────────
     // 12. PLANS — CRUD
     // ─────────────────────────────────────────────
-    const planForm    = document.getElementById('plan-form');
-    const plansList   = document.getElementById('plans-list');
-    const savePlanBtn = document.getElementById('save-plan-btn');
-    const searchInput = document.getElementById('plan-search');
-    const searchBtn   = document.getElementById('plan-search-btn');
 
     async function savePlan(e) {
         e.preventDefault();
@@ -539,7 +538,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const res  = await fetch('plans.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify({ destination, university, start_date: startDate })
             });
             const data = await res.json();
@@ -569,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!plansList) return;
         if (!isLoggedIn) { plansList.innerHTML = '<p>Please log in to see your plans.</p>'; return; }
         try {
-            const res  = await fetch('plans.php', { credentials: 'include' });
+            const res  = await fetch('plans.php');
             const data = await res.json();
             renderPlansList(data.plans || []);
         } catch (err) { plansList.innerHTML = '<p>Could not load plans.</p>'; }
@@ -593,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deletePlan = async function(id) {
         if (!confirm('Delete this plan?')) return;
         try {
-            const res  = await fetch('plans.php?id=' + id, { method: 'DELETE', credentials: 'include' });
+            const res  = await fetch('plans.php?id=' + id, { method: 'DELETE' });
             const data = await res.json();
             if (res.ok) loadPlans();
             else alert(data.error || 'Failed to delete plan.');
@@ -605,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const term = searchInput ? searchInput.value.trim() : '';
             if (!term) { loadPlans(); return; }
             try {
-                const res  = await fetch('plans.php?search=' + encodeURIComponent(term), { credentials: 'include' });
+                const res  = await fetch('plans.php?search=' + encodeURIComponent(term));
                 const data = await res.json();
                 renderPlansList(data.plans || []);
                 if ((data.plans || []).length === 0 && plansList)
@@ -959,7 +957,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res  = await fetch('notify.php', {
                     method:  'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
                     body:    JSON.stringify({ deadlines }),
                 });
                 const data = await res.json();
