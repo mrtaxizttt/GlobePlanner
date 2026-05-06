@@ -864,13 +864,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const uniStatus    = document.getElementById('uni-status');
     const uniInput     = document.getElementById('plan-university');
 
+    // Some countries are stored under alternate official names in the Hipolabs API.
+    // This map normalises common user inputs to the name the API recognises.
+    const COUNTRY_ALIASES = {
+        'taiwan':       'Taiwan, Province of China',
+        'south korea':  'Korea, Republic of',
+        'korea':        'Korea, Republic of',
+        'north korea':  'Korea, Democratic People\'s Republic of',
+        'russia':       'Russian Federation',
+        'iran':         'Iran, Islamic Republic of',
+        'syria':        'Syrian Arab Republic',
+        'bolivia':      'Bolivia, Plurinational State of',
+        'venezuela':    'Venezuela, Bolivarian Republic of',
+        'vietnam':      'Viet Nam',
+        'moldova':      'Moldova, Republic of',
+        'tanzania':     'Tanzania, United Republic of',
+        'united states':'United States',
+        'usa':          'United States',
+        'uk':           'United Kingdom',
+    };
+
     if (uniSearchBtn) {
         uniSearchBtn.addEventListener('click', async () => {
-            const country = document.getElementById('plan-destination').value.trim();
-            if (!country) {
+            const rawCountry = document.getElementById('plan-destination').value.trim();
+            if (!rawCountry) {
                 alert('Please enter a destination country first.');
                 return;
             }
+
+            // Resolve alias if one exists
+            const country = COUNTRY_ALIASES[rawCountry.toLowerCase()] || rawCountry;
 
             uniStatus.style.display  = 'block';
             uniStatus.textContent    = '⏳ Searching universities...';
@@ -886,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    uniStatus.textContent = `No universities found for "${country}". Try the full country name in English (e.g. "Germany", "Japan").`;
+                    uniStatus.textContent = `No universities found for "${rawCountry}". You can type your university name directly in the field above.`;
                     return;
                 }
 
@@ -900,10 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 uniDropdown.style.display = 'block';
-                uniStatus.textContent = `✅ Found ${data.length} universities. Select one to fill the field.`;
+                uniStatus.textContent = `✅ Found ${data.length} universities. Select one to fill the field, or type your university above.`;
 
             } catch (err) {
-                uniStatus.textContent = '❌ Could not reach the universities API. Please try again.';
+                uniStatus.textContent = '❌ Could not reach the universities API. You can type your university name directly in the field above.';
             }
         });
     }
