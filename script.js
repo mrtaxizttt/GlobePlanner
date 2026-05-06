@@ -557,7 +557,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     planForm.addEventListener('submit', savePlan);
-    savePlanBtn.addEventListener('click', () => planForm.dispatchEvent(new Event('submit')));
+    // FIX: click the real submit button inside the form instead of dispatching a synthetic event.
+    // This avoids double-firing and ensures e.preventDefault() always works correctly.
+    savePlanBtn.addEventListener('click', () => {
+        const inner = planForm.querySelector('button[type="submit"]');
+        if (inner) inner.click();
+    });
 
     async function loadPlans() {
         if (!plansList) return;
